@@ -380,9 +380,7 @@ function tour(){
         lastTabPionSelectable=JSON.parse(JSON.stringify(tabPionSelectable));
         tabPionSelectable=defineMeilleurCoupsPossible(joueur);
         actualizeSelectable();
-        console.log(tabPionSelectable);
     }
-    console.log(joueur);
 }
 
 initTableau();
