@@ -7,8 +7,10 @@ var tabCoupsPossible = [];
 var lastTabCoupsPossible = [];
 var tabMangerPossible = [];
 var lastTabMangerPossible = [];
+var tabPionSelectable = [];
 var lastPos;
 var lastTabCase;
+var rafle=false;
 
 
 class Position {
@@ -89,7 +91,7 @@ function initPion() {
 }
 
 function selectPion(id) {
-    if (tabMangerPossible.length == 0) {
+    if (!rafle || tabMangerPossible.length == 0) {
         if (pionSelected != undefined) {
             if (pionSelected == id) {
                 lastPionSelected = pionSelected;
@@ -119,20 +121,34 @@ function selectPion(id) {
         }
     }
 }
-
-function defineCoupsPossible() {
+/**
+ * Cette fonction retourne les coups possibles pour un pion donné, à une position donnée dans un tableau de case donné.
+ * Elle ne retourne que les coups qui ne mange pas de pion adverse.
+ * @param {Position} pos : position du pion selctionné (default value : lastPos)
+ * @param {string} pion : pion selectionné (default value : pionSelected)
+ * @param {Array} tab : tableau de case dans lequel le pion selectionné se situe (default value : tabCase)
+ * @returns {Array} res : tableau des positions vers lesquelles le pion donné en paramètres peut se déplacer
+ */
+function defineCoupsPossible(pos = lastPos, pion = pionSelected, tab =tabCase) {
     let res = [];
-    let y = lastPos.y + 1;
-    if (pionSelected.charAt(0) == 'w') y = lastPos.y - 1;
-    let x1 = lastPos.x + 1;
-    let x2 = lastPos.x - 1;
+    let y = pos.y + 1;
+    if (pion.charAt(0) == 'w') y = pos.y - 1;
+    let x1 = pos.x + 1;
+    let x2 = pos.x - 1;
     if (y >= 0 && y < 10) {
-        if (tabCase[y][x1] == 'empty' && x1 >= 0 && x1 < 10) res.push('' + (x1) + (y));
-        if (tabCase[y][x2] == 'empty' && x2 >= 0 && x2 < 10) res.push('' + (x2) + (y));
+        if (tab[y][x1] == 'empty' && x1 >= 0 && x1 < 10) res.push('' + (x1) + (y));
+        if (tab[y][x2] == 'empty' && x2 >= 0 && x2 < 10) res.push('' + (x2) + (y));
     }
     return res;
 }
-
+/**
+ * Cette fonction retourne les coups possibles pour un pion donné, à une position donnée dans un tableau de case donné.
+ * Elle ne retourne que les coups qui mange un pion adverse.
+ * @param {Position} pos : position du pion selctionné (default value : lastPos)
+ * @param {string} pion : pion selectionné (default value : pionSelected)
+ * @param {Array} tab : tableau de case dans lequel le pion selectionné se situe (default value : tabCase)
+ * @returns {Array} res : tableau des positions vers lesquelles le pion donné en paramètres peut se déplacer en mangeant un pion adverse
+ */
 function defineMangerPossible(pos = lastPos, pion = pionSelected, tab=tabCase) {
     let res = [];
     for (let x = -2; x <= 2; x = x + 4) {
@@ -151,6 +167,9 @@ function defineMangerPossible(pos = lastPos, pion = pionSelected, tab=tabCase) {
     return res;
 }
 
+/*----------------------------------------------------------------Fonction récursive de recherche du meilleur coups----------------------------------------------------------------- */
+/*-----------------------------------------------------------------INCOMPLETE A FINIR SI LE TEMPS EN FIN DE PROJET------------------------------------------------------------------ */
+/*
 function defineMeilleurCoupsPossible(joueur = 'w') {
     let res = [];
     for (let y = 0; y < 10; y++) {
@@ -176,6 +195,34 @@ function recursiveMeilleurCoupsPossible(tab = new Array, pos = new Position, i) 
         newTab[pos.y][pos.x] = 'empty';
         res.push([''+pos.x+pos.y,i])
         res.push(recursiveMeilleurCoupsPossible(newTab, newPos, i+1));
+    }
+    return res;
+}
+*/
+
+function defineMeilleurCoupsPossible(joueur='w'){
+    let res = [];
+    for (let y = 0; y < 10; y++) {
+        for (let x = 0; x < 10; x++) {
+            if (tabCase[y][x].charAt(0) == joueur) {
+                let coups = defineMangerPossible(new Position(x,y),tabCase[y][x],tabCase);
+                if(coups.length!=0){
+                    res.push(tabCase[y][x]);
+                }
+            }
+        }
+    }
+    if(res.length==0){
+        for (let y = 0; y < 10; y++) {
+            for (let x = 0; x < 10; x++) {
+                if (tabCase[y][x].charAt(0) == joueur) {
+                    let coups = defineCoupsPossible(new Position(x,y),tabCase[y][x],tabCase);
+                    if(coups.length!=0){
+                        res.push(tabCase[y][x]);
+                    }
+                }
+            }
+        } 
     }
     return res;
 }
@@ -208,9 +255,11 @@ function moveTo(pos = new Position) {
                 if (tabMangerPossible.length == 0) {
                     lastPionSelected = pionSelected;
                     pionSelected = undefined;
-                } else {
-                    actualizeSelection();
+                    rafle=false;
+                }else{
+                    rafle=true;
                 }
+                actualizeSelection();
             }
         }
     }
