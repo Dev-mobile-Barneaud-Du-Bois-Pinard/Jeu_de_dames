@@ -14,6 +14,9 @@ var lastTabCase;
 var rafle=false;
 var joueur ='w';
 
+/**
+ * 
+ */
 class Position {
     constructor(x = 0, y = 0) {
         this.x = x;
@@ -21,6 +24,10 @@ class Position {
     }
 }
 
+/**
+ * 
+ * @param {*} pos 
+ */
 function createCase(pos = new Position) {
     let div = document.createElement('div');
     div.className = 'case';
@@ -36,6 +43,11 @@ function createCase(pos = new Position) {
     main.appendChild(div);
 }
 
+/**
+ * 
+ * @param {*} pos 
+ * @param {*} name 
+ */
 function createPion(pos = new Position, name = 'null') {
     let circle = document.createElement('div');
     circle.style.marginTop = pos.y * 60 + 5 + 'px';
@@ -51,6 +63,9 @@ function createPion(pos = new Position, name = 'null') {
     main.appendChild(circle);
 }
 
+/**
+ * 
+ */
 function initTableau() {
     let nbWhite = 1;
     let nbBlack = 1;
@@ -75,6 +90,9 @@ function initTableau() {
     }
 }
 
+/**
+ * 
+ */
 function initPlateau() {
     for (let y = 0; y < 10; y++) {
         for (let x = 0; x < 10; x++) {
@@ -83,6 +101,9 @@ function initPlateau() {
     }
 }
 
+/**
+ * 
+ */
 function initPion() {
     for (let y = 0; y < 10; y++) {
         for (let x = 0; x < 10; x++) {
@@ -91,6 +112,11 @@ function initPion() {
     }
 }
 
+/**
+ * 
+ * @param {*} id 
+ * @returns 
+ */
 function selectPion(id) {
     if (!rafle || tabMangerPossible.length == 0) {
         for(let i=0;i<tabPionSelectable.length;i++){
@@ -204,7 +230,11 @@ function recursiveMeilleurCoupsPossible(tab = new Array, pos = new Position, i) 
     return res;
 }
 */
-
+/**
+ * 
+ * @param {*} j 
+ * @returns 
+ */
 function defineMeilleurCoupsPossible(j=joueur){
     let res = [];
     for (let y = 0; y < 10; y++) {
@@ -232,6 +262,10 @@ function defineMeilleurCoupsPossible(j=joueur){
     return res;
 }
 
+/**
+ * 
+ * @param {*} pos 
+ */
 function moveTo(pos = new Position) {
     if (pionSelected != undefined) {
         for (let i = 0; i < tabCoupsPossible.length; i++) {
@@ -272,6 +306,9 @@ function moveTo(pos = new Position) {
     }
 }
 
+/**
+ * 
+ */
 function actualizePlateau() {
     actualizeSelection();
     if (lastTabCase != undefined) {
@@ -296,6 +333,9 @@ function actualizePlateau() {
     }
 }
 
+/**
+ * 
+ */
 function actualizeSelection() {
     if (pionSelected != undefined) document.getElementById(pionSelected).style.border = 'solid 2px green';
     if (lastPionSelected != undefined && pionSelected != lastPionSelected) {
@@ -317,6 +357,9 @@ function actualizeSelection() {
     }
 }
 
+/**
+ * 
+ */
 function actualizeSelectable(){
     for(let i =0;i< lastTabPionSelectable.length;i++){
         let pion = document.getElementById(lastTabPionSelectable[i]);
@@ -328,6 +371,9 @@ function actualizeSelectable(){
     }
 }
 
+/**
+ * 
+ */
 function tour(){
     if(!rafle){
         joueur= (joueur=='w' ? 'b' : 'w');
