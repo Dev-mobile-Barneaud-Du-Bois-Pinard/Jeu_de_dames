@@ -1,0 +1,23 @@
+#main{
+    margin: auto;
+    border: solid black 2px;
+    width:600px;
+    height:600px;
+}
+.case{
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    z-index: 1;
+}
+
+.pion{
+    position: absolute;
+    width: 46px;
+    height: 46px;
+    border: solid 2px #FFEECF;
+    z-index: 2;
+    border-radius: 100%;
+    transition: margin 1s, opacity 1s;
+    transition-delay: opacity 0.5;
+}
