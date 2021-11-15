@@ -8,10 +8,11 @@ var lastTabCoupsPossible = [];
 var tabMangerPossible = [];
 var lastTabMangerPossible = [];
 var tabPionSelectable = [];
+var lastTabPionSelectable = [];
 var lastPos;
 var lastTabCase;
 var rafle=false;
-
+var joueur ='w';
 
 class Position {
     constructor(x = 0, y = 0) {
@@ -92,30 +93,34 @@ function initPion() {
 
 function selectPion(id) {
     if (!rafle || tabMangerPossible.length == 0) {
-        if (pionSelected != undefined) {
-            if (pionSelected == id) {
-                lastPionSelected = pionSelected;
-                pionSelected = undefined;
-                lastTabCoupsPossible = JSON.parse(JSON.stringify(tabCoupsPossible));
-                tabCoupsPossible = [];
-                lastTabMangerPossible = JSON.parse(JSON.stringify(tabMangerPossible));
-                tabMangerPossible = [];
-                actualizeSelection();
-                return null;
-            }
-        }
-        for (let y = 0; y < 10; y++) {
-            for (let x = 0; x < 10; x++) {
-                if (tabCase[y][x] == id) {
-                    lastPionSelected = pionSelected;
-                    pionSelected = id;
-                    lastPos = new Position(x, y);
-                    lastTabCoupsPossible = JSON.parse(JSON.stringify(tabCoupsPossible));
-                    lastTabMangerPossible = JSON.parse(JSON.stringify(tabMangerPossible));
-                    tabMangerPossible = defineMangerPossible();
-                    if (tabMangerPossible.length == 0) tabCoupsPossible = defineCoupsPossible();
-                    else tabCoupsPossible = [];
-                    actualizeSelection();
+        for(let i=0;i<tabPionSelectable.length;i++){
+            if(tabPionSelectable[i]==id){
+                if (pionSelected != undefined) {
+                    if (pionSelected == id) {
+                        lastPionSelected = pionSelected;
+                        pionSelected = undefined;
+                        lastTabCoupsPossible = JSON.parse(JSON.stringify(tabCoupsPossible));
+                        tabCoupsPossible = [];
+                        lastTabMangerPossible = JSON.parse(JSON.stringify(tabMangerPossible));
+                        tabMangerPossible = [];
+                        actualizeSelection();
+                        return null;
+                    }
+                }
+                for (let y = 0; y < 10; y++) {
+                    for (let x = 0; x < 10; x++) {
+                        if (tabCase[y][x] == id) {
+                            lastPionSelected = pionSelected;
+                            pionSelected = id;
+                            lastPos = new Position(x, y);
+                            lastTabCoupsPossible = JSON.parse(JSON.stringify(tabCoupsPossible));
+                            lastTabMangerPossible = JSON.parse(JSON.stringify(tabMangerPossible));
+                            tabMangerPossible = defineMangerPossible();
+                            if (tabMangerPossible.length == 0) tabCoupsPossible = defineCoupsPossible();
+                            else tabCoupsPossible = [];
+                            actualizeSelection();
+                        }
+                    }
                 }
             }
         }
@@ -200,11 +205,11 @@ function recursiveMeilleurCoupsPossible(tab = new Array, pos = new Position, i) 
 }
 */
 
-function defineMeilleurCoupsPossible(joueur='w'){
+function defineMeilleurCoupsPossible(j=joueur){
     let res = [];
     for (let y = 0; y < 10; y++) {
         for (let x = 0; x < 10; x++) {
-            if (tabCase[y][x].charAt(0) == joueur) {
+            if (tabCase[y][x].charAt(0) == j) {
                 let coups = defineMangerPossible(new Position(x,y),tabCase[y][x],tabCase);
                 if(coups.length!=0){
                     res.push(tabCase[y][x]);
@@ -215,7 +220,7 @@ function defineMeilleurCoupsPossible(joueur='w'){
     if(res.length==0){
         for (let y = 0; y < 10; y++) {
             for (let x = 0; x < 10; x++) {
-                if (tabCase[y][x].charAt(0) == joueur) {
+                if (tabCase[y][x].charAt(0) == j) {
                     let coups = defineCoupsPossible(new Position(x,y),tabCase[y][x],tabCase);
                     if(coups.length!=0){
                         res.push(tabCase[y][x]);
@@ -239,6 +244,7 @@ function moveTo(pos = new Position) {
                 lastTabCoupsPossible = JSON.parse(JSON.stringify(tabCoupsPossible));
                 tabCoupsPossible = [];
                 actualizePlateau();
+                tour();
             }
         }
         for (let i = 0; i < tabMangerPossible.length; i++) {
@@ -260,6 +266,7 @@ function moveTo(pos = new Position) {
                     rafle=true;
                 }
                 actualizeSelection();
+                tour();
             }
         }
     }
@@ -292,7 +299,7 @@ function actualizePlateau() {
 function actualizeSelection() {
     if (pionSelected != undefined) document.getElementById(pionSelected).style.border = 'solid 2px green';
     if (lastPionSelected != undefined && pionSelected != lastPionSelected) {
-        document.getElementById(lastPionSelected).style.border = 'solid 2px #FFEECF';
+        document.getElementById(lastPionSelected).style.border = 'solid 2px red';
     }
     for (let i = 0; i < lastTabCoupsPossible.length; i++) {
         document.getElementById(lastTabCoupsPossible[i]).style.backgroundColor = '#493D31';
@@ -310,7 +317,32 @@ function actualizeSelection() {
     }
 }
 
+function actualizeSelectable(){
+    for(let i =0;i< lastTabPionSelectable.length;i++){
+        let pion = document.getElementById(lastTabPionSelectable[i]);
+        pion.style.border = 'solid 2px #FFEECF';
+    }
+    for(let i =0;i< tabPionSelectable.length;i++){
+        let pion = document.getElementById(tabPionSelectable[i]);
+        pion.style.border = 'solid 2px red';
+    }
+}
+
+function tour(){
+    if(!rafle){
+        joueur= (joueur=='w' ? 'b' : 'w');
+        lastTabPionSelectable=JSON.parse(JSON.stringify(tabPionSelectable));
+        tabPionSelectable=defineMeilleurCoupsPossible(joueur);
+        actualizeSelectable();
+        console.log(tabPionSelectable);
+    }
+    console.log(joueur);
+}
 
 initTableau();
 initPlateau();
 initPion();
+
+tabPionSelectable=defineMeilleurCoupsPossible(joueur);
+actualizeSelectable();
+console.log(tabPionSelectable);
