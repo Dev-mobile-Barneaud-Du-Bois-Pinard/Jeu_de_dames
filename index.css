@@ -17,6 +17,7 @@
     height: 46px;
     border: solid 2px #FFEECF;
     z-index: 2;
+    text-align: center;
     border-radius: 100%;
     transition: margin 1s, opacity 1s;
     transition-delay: opacity 0.5;

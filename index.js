@@ -11,11 +11,13 @@ var tabPionSelectable = [];
 var lastTabPionSelectable = [];
 var lastPos;
 var lastTabCase;
-var rafle=false;
-var joueur ='w';
+var rafle = false;
+var posEnemy;
+var joueur = 'w';
 
 /**
- * 
+ * Classe position
+ * Possède deux attributs x et y représentant respectivant la position sur l'axe des abscisses et l'axe des ordonnées
  */
 class Position {
     constructor(x = 0, y = 0) {
@@ -24,9 +26,13 @@ class Position {
     }
 }
 
+function isInPlateau(pos = new Position()) {
+    return pos.x >= 0 && pos.x < 10 && pos.y >= 0 && pos.y < 10;
+}
+
 /**
- * 
- * @param {*} pos 
+ * Créer une case dans le DOM à une position précisée en paramètre
+ * @param {Position} pos 
  */
 function createCase(pos = new Position) {
     let div = document.createElement('div');
@@ -44,9 +50,9 @@ function createCase(pos = new Position) {
 }
 
 /**
- * 
- * @param {*} pos 
- * @param {*} name 
+ * Créer un pion dans le DOM à une position et avec un id/name tous deux précisés en paramètre.
+ * @param {Position} pos 
+ * @param {string} name 
  */
 function createPion(pos = new Position, name = 'null') {
     let circle = document.createElement('div');
@@ -55,16 +61,19 @@ function createPion(pos = new Position, name = 'null') {
     circle.className = 'pion';
     circle.id = name;
     circle.onclick = function () { selectPion(circle.id) };
-    if (pos.y < 4) {
+    if (name.charAt(0) == 'b') {
         circle.style.backgroundColor = 'black';
+        circle.style.color = 'white';
     } else {
         circle.style.backgroundColor = 'white';
+        circle.style.color = 'black';
     }
+    if (name.charAt(name.length - 1) == 'd') circle.innerHTML = '<p>D</p>';
     main.appendChild(circle);
 }
 
 /**
- * 
+ * Créer le 
  */
 function initTableau() {
     let nbWhite = 1;
@@ -119,8 +128,8 @@ function initPion() {
  */
 function selectPion(id) {
     if (!rafle || tabMangerPossible.length == 0) {
-        for(let i=0;i<tabPionSelectable.length;i++){
-            if(tabPionSelectable[i]==id){
+        for (let i = 0; i < tabPionSelectable.length; i++) {
+            if (tabPionSelectable[i] == id) {
                 if (pionSelected != undefined) {
                     if (pionSelected == id) {
                         lastPionSelected = pionSelected;
@@ -160,15 +169,26 @@ function selectPion(id) {
  * @param {Array} tab : tableau de case dans lequel le pion selectionné se situe (default value : tabCase)
  * @returns {Array} res : tableau des positions vers lesquelles le pion donné en paramètres peut se déplacer
  */
-function defineCoupsPossible(pos = lastPos, pion = pionSelected, tab =tabCase) {
+function defineCoupsPossible(pos = lastPos, pion = pionSelected, tab = tabCase) {
     let res = [];
-    let y = pos.y + 1;
-    if (pion.charAt(0) == 'w') y = pos.y - 1;
-    let x1 = pos.x + 1;
-    let x2 = pos.x - 1;
-    if (y >= 0 && y < 10) {
-        if (tab[y][x1] == 'empty' && x1 >= 0 && x1 < 10) res.push('' + (x1) + (y));
-        if (tab[y][x2] == 'empty' && x2 >= 0 && x2 < 10) res.push('' + (x2) + (y));
+    if (pion.charAt(pion.length - 1) == 'd') {
+        for (let x = -1; x < 2; x = x + 2) {
+            for (let y = -1; y < 2; y = y + 2) {
+                for (let i = 1; i < 10; i++) {
+                    let x1 = pos.x - x * i;
+                    let y1 = pos.y - y * i;
+                    if (isInPlateau(new Position(x1, y1)) && tab[y1][x1] == 'empty') res.push('' + (x1) + (y1));
+                    else i = 10;
+                }
+            }
+        }
+    } else {
+        let y = pos.y + 1;
+        if (pion.charAt(0) == 'w') y = pos.y - 1;
+        let x1 = pos.x + 1;
+        let x2 = pos.x - 1;
+        if (tab[y][x1] == 'empty' && isInPlateau(new Position(x1, y))) res.push('' + (x1) + (y));
+        if (tab[y][x2] == 'empty' && isInPlateau(new Position(x2, y))) res.push('' + (x2) + (y));
     }
     return res;
 }
@@ -180,17 +200,37 @@ function defineCoupsPossible(pos = lastPos, pion = pionSelected, tab =tabCase) {
  * @param {Array} tab : tableau de case dans lequel le pion selectionné se situe (default value : tabCase)
  * @returns {Array} res : tableau des positions vers lesquelles le pion donné en paramètres peut se déplacer en mangeant un pion adverse
  */
-function defineMangerPossible(pos = lastPos, pion = pionSelected, tab=tabCase) {
+function defineMangerPossible(pos = lastPos, pion = pionSelected, tab = tabCase) {
     let res = [];
-    for (let x = -2; x <= 2; x = x + 4) {
-        for (let y = -2; y <= 2; y = y + 4) {
-            if (pos.x + x >= 0 && pos.x + x < 10 && pos.y + y >= 0 && pos.y + y < 10) {
-                let x1 = pos.x + x / 2;
-                let x2 = pos.x + x;
-                let y1 = pos.y + y / 2;
-                let y2 = pos.y + y;
-                if ((pion.charAt(0) == 'w' && tab[y1][x1].charAt(0) == 'b') || (pion.charAt(0) == 'b' && tab[y1][x1].charAt(0) == 'w')) {
-                    if (tab[y2][x2] == 'empty') res.push('' + x2 + y2);
+    if (pion.charAt(pion.length - 1) == 'd') {
+        for (let x = -1; x < 2; x = x + 2) {
+            for (let y = -1; y < 2; y = y + 2) {
+                let enemy = false;
+                for (let i = 1; i < 10; i++) {
+                    let x1 = pos.x - x * i;
+                    let y1 = pos.y - y * i;
+                    if (isInPlateau(new Position(x1, y1))) {
+                        if ((tab[y1][x1].charAt(0) == 'w' && joueur == 'b') || (tab[y1][x1].charAt(0) == 'b' && joueur == 'w')) {
+                            if (enemy) i = 10;
+                            else enemy = true;
+                        }
+                        else if ((tab[y1][x1].charAt(0) == 'b' && joueur == 'b') || (tab[y1][x1].charAt(0) == 'w' && joueur == 'w')) i = 10;
+                        else if (enemy && tab[y1][x1] == 'empty') res.push('' + (x1) + (y1));
+                    } else i = 10;
+                }
+            }
+        }
+    } else {
+        for (let x = -2; x <= 2; x = x + 4) {
+            for (let y = -2; y <= 2; y = y + 4) {
+                if (isInPlateau(new Position(pos.x + x, pos.y + y))) {
+                    let x1 = pos.x + x / 2;
+                    let x2 = pos.x + x;
+                    let y1 = pos.y + y / 2;
+                    let y2 = pos.y + y;
+                    if ((pion.charAt(0) == 'w' && tab[y1][x1].charAt(0) == 'b') || (pion.charAt(0) == 'b' && tab[y1][x1].charAt(0) == 'w')) {
+                        if (tab[y2][x2] == 'empty') res.push('' + x2 + y2);
+                    }
                 }
             }
         }
@@ -230,34 +270,35 @@ function recursiveMeilleurCoupsPossible(tab = new Array, pos = new Position, i) 
     return res;
 }
 */
+
 /**
  * 
  * @param {*} j 
  * @returns 
  */
-function defineMeilleurCoupsPossible(j=joueur){
+function defineMeilleurCoupsPossible(j = joueur) {
     let res = [];
     for (let y = 0; y < 10; y++) {
         for (let x = 0; x < 10; x++) {
             if (tabCase[y][x].charAt(0) == j) {
-                let coups = defineMangerPossible(new Position(x,y),tabCase[y][x],tabCase);
-                if(coups.length!=0){
+                let coups = defineMangerPossible(new Position(x, y), tabCase[y][x], tabCase);
+                if (coups.length != 0) {
                     res.push(tabCase[y][x]);
                 }
             }
         }
     }
-    if(res.length==0){
+    if (res.length == 0) {
         for (let y = 0; y < 10; y++) {
             for (let x = 0; x < 10; x++) {
                 if (tabCase[y][x].charAt(0) == j) {
-                    let coups = defineCoupsPossible(new Position(x,y),tabCase[y][x],tabCase);
-                    if(coups.length!=0){
+                    let coups = defineCoupsPossible(new Position(x, y), tabCase[y][x], tabCase);
+                    if (coups.length != 0) {
                         res.push(tabCase[y][x]);
                     }
                 }
             }
-        } 
+        }
     }
     return res;
 }
@@ -278,6 +319,7 @@ function moveTo(pos = new Position) {
                 lastTabCoupsPossible = JSON.parse(JSON.stringify(tabCoupsPossible));
                 tabCoupsPossible = [];
                 actualizePlateau();
+                createDame(pos, lastPionSelected);
                 tour();
             }
         }
@@ -286,18 +328,36 @@ function moveTo(pos = new Position) {
                 lastTabCase = JSON.parse(JSON.stringify(tabCase));
                 tabCase[pos.y][pos.x] = pionSelected;
                 tabCase[lastPos.y][lastPos.x] = 'empty';
-                tabCase[(lastPos.y + pos.y) / 2][(lastPos.x + pos.x) / 2] = 'r' + tabCase[(lastPos.y + pos.y) / 2][(lastPos.x + pos.x) / 2];
+                yn = pos.y;
+                y0 = lastPos.y;
+                xn = pos.x;
+                x0 = lastPos.x;
+                while (x0 != xn && y0 != yn) {
+                    if (lastPos.x > pos.x) {
+                        x0--;
+                    } else {
+                        x0++;
+                    }
+                    if (lastPos.y > pos.y) {
+                        y0--;
+                    } else {
+                        y0++;
+                    }
+                    if ((tabCase[y0][x0].charAt(0) == 'w' && joueur == 'b') || (tabCase[y0][x0].charAt(0) == 'b' && joueur == 'w')) tabCase[y0][x0] = 'r' + tabCase[y0][x0];
+                }
                 lastTabMangerPossible = JSON.parse(JSON.stringify(tabMangerPossible));
                 tabMangerPossible = [];
                 actualizePlateau();
                 lastPos = pos;
-                tabMangerPossible = defineMangerPossible();
-                if (tabMangerPossible.length == 0) {
-                    lastPionSelected = pionSelected;
-                    pionSelected = undefined;
-                    rafle=false;
-                }else{
-                    rafle=true;
+                if (!createDame(pos, pionSelected)) {
+                    tabMangerPossible = defineMangerPossible();
+                    if (tabMangerPossible.length == 0) {
+                        lastPionSelected = pionSelected;
+                        pionSelected = undefined;
+                        rafle = false;
+                    } else {
+                        rafle = true;
+                    }
                 }
                 actualizeSelection();
                 tour();
@@ -305,6 +365,20 @@ function moveTo(pos = new Position) {
         }
     }
 }
+
+function createDame(pos = lastPos, pion = pionSelected) {
+    console.log('1');
+    if (pion.charAt(pion.length - 1) != 'd' && ((pos.y == 0 && pion.charAt(0) == 'w') || (pos.y == 9 && pion.charAt(0) == 'b'))) {
+        console.log('2');
+        lastTabCase = JSON.parse(JSON.stringify(tabCase));
+        tabCase[pos.y][pos.x] = tabCase[pos.y][pos.x] + 'd';
+        actualizePlateau();
+        rafle=false;
+        return true;
+    }
+    return false;
+}
+
 
 /**
  * 
@@ -315,9 +389,13 @@ function actualizePlateau() {
         for (let y = 0; y < 10; y++) {
             for (let x = 0; x < 10; x++) {
                 if (tabCase[y][x] != lastTabCase[y][x]) {
-                    if (tabCase[y][x] != 'empty' && tabCase[y][x].charAt(0) != 'r') {
+                    if (tabCase[y][x].charAt(tabCase[y][x].length - 1) == 'd' && tabCase[y][x].substring(0, tabCase[y][x].length - 1) == lastTabCase[y][x]) {
+                        let pion = document.getElementById(lastTabCase[y][x]);
+                        pion.style.opacity = '0';
+                        setTimeout(function () { pion.remove() }, 1500);
+                        createPion(new Position(x, y), tabCase[y][x]);
+                    } else if (tabCase[y][x] != 'empty' && tabCase[y][x].charAt(0) != 'r') {
                         let pion = document.getElementById(tabCase[y][x]);
-                        pion.style.zIndex = '3';
                         pion.style.marginTop = y * 60 + 5 + 'px';
                         pion.style.marginLeft = x * 60 + 5 + 'px';
                     } else if (tabCase[y][x].charAt(0) == 'r') {
@@ -360,12 +438,12 @@ function actualizeSelection() {
 /**
  * 
  */
-function actualizeSelectable(){
-    for(let i =0;i< lastTabPionSelectable.length;i++){
+function actualizeSelectable() {
+    for (let i = 0; i < lastTabPionSelectable.length; i++) {
         let pion = document.getElementById(lastTabPionSelectable[i]);
         pion.style.border = 'solid 2px #FFEECF';
     }
-    for(let i =0;i< tabPionSelectable.length;i++){
+    for (let i = 0; i < tabPionSelectable.length; i++) {
         let pion = document.getElementById(tabPionSelectable[i]);
         pion.style.border = 'solid 2px red';
     }
@@ -374,11 +452,11 @@ function actualizeSelectable(){
 /**
  * 
  */
-function tour(){
-    if(!rafle){
-        joueur= (joueur=='w' ? 'b' : 'w');
-        lastTabPionSelectable=JSON.parse(JSON.stringify(tabPionSelectable));
-        tabPionSelectable=defineMeilleurCoupsPossible(joueur);
+function tour() {
+    if (!rafle) {
+        joueur = (joueur == 'w' ? 'b' : 'w');
+        lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
+        tabPionSelectable = defineMeilleurCoupsPossible(joueur);
         actualizeSelectable();
     }
 }
@@ -387,6 +465,5 @@ initTableau();
 initPlateau();
 initPion();
 
-tabPionSelectable=defineMeilleurCoupsPossible(joueur);
+tabPionSelectable = defineMeilleurCoupsPossible(joueur);
 actualizeSelectable();
-console.log(tabPionSelectable);
