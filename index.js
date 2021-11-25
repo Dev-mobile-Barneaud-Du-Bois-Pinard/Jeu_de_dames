@@ -14,6 +14,8 @@ var lastTabCase;
 var rafle = false;
 var posEnemy;
 var joueur = 'w';
+var countW = 20;
+var countB = 20;
 
 /**
  * Classe position
@@ -162,10 +164,10 @@ function selectPion(id) {
     }
 }
 /**
- * Cette fonction retourne les coups possibles pour un pion donné, à une position donnée dans un tableau de case donné.
+ * Cette fonction retourne les coups possibles pour un pion/dame donné, à une position donnée dans un tableau de case donné.
  * Elle ne retourne que les coups qui ne mange pas de pion adverse.
  * @param {Position} pos : position du pion selctionné (default value : lastPos)
- * @param {string} pion : pion selectionné (default value : pionSelected)
+ * @param {string} pion : pion/dame selectionné (default value : pionSelected)
  * @param {Array} tab : tableau de case dans lequel le pion selectionné se situe (default value : tabCase)
  * @returns {Array} res : tableau des positions vers lesquelles le pion donné en paramètres peut se déplacer
  */
@@ -193,10 +195,10 @@ function defineCoupsPossible(pos = lastPos, pion = pionSelected, tab = tabCase) 
     return res;
 }
 /**
- * Cette fonction retourne les coups possibles pour un pion donné, à une position donnée dans un tableau de case donné.
+ * Cette fonction retourne les coups possibles pour un pion/dame donné, à une position donnée dans un tableau de case donné.
  * Elle ne retourne que les coups qui mange un pion adverse.
  * @param {Position} pos : position du pion selctionné (default value : lastPos)
- * @param {string} pion : pion selectionné (default value : pionSelected)
+ * @param {string} pion : pion/dame selectionné (default value : pionSelected)
  * @param {Array} tab : tableau de case dans lequel le pion selectionné se situe (default value : tabCase)
  * @returns {Array} res : tableau des positions vers lesquelles le pion donné en paramètres peut se déplacer en mangeant un pion adverse
  */
@@ -343,7 +345,12 @@ function moveTo(pos = new Position) {
                     } else {
                         y0++;
                     }
-                    if ((tabCase[y0][x0].charAt(0) == 'w' && joueur == 'b') || (tabCase[y0][x0].charAt(0) == 'b' && joueur == 'w')) tabCase[y0][x0] = 'r' + tabCase[y0][x0];
+                    if ((tabCase[y0][x0].charAt(0) == 'w' && joueur == 'b') || (tabCase[y0][x0].charAt(0) == 'b' && joueur == 'w')) {
+                        tabCase[y0][x0] = 'r' + tabCase[y0][x0];
+                        if (tabCase[y0][x0].charAt(1) == 'w') countW--;
+                        else if (tabCase[y0][x0].charAt(1) == 'b') countB--;
+                        console.log("white : "+countW,"black : "+countB)
+                    }
                 }
                 lastTabMangerPossible = JSON.parse(JSON.stringify(tabMangerPossible));
                 tabMangerPossible = [];
@@ -366,14 +373,20 @@ function moveTo(pos = new Position) {
     }
 }
 
+/**
+ * 
+ * @param {*} pos 
+ * @param {*} pion 
+ * @returns 
+ */
 function createDame(pos = lastPos, pion = pionSelected) {
-    console.log('1');
     if (pion.charAt(pion.length - 1) != 'd' && ((pos.y == 0 && pion.charAt(0) == 'w') || (pos.y == 9 && pion.charAt(0) == 'b'))) {
-        console.log('2');
         lastTabCase = JSON.parse(JSON.stringify(tabCase));
         tabCase[pos.y][pos.x] = tabCase[pos.y][pos.x] + 'd';
+        lastPionSelected = undefined;
+        pionSelected = undefined;
         actualizePlateau();
-        rafle=false;
+        rafle = false;
         return true;
     }
     return false;
@@ -381,7 +394,7 @@ function createDame(pos = lastPos, pion = pionSelected) {
 
 
 /**
- * 
+ * Cette fonction appel la fonction actualizeSelection(). Puis elle actualise l'affichage des pions sur le plateau en fonction des changements dans le tableau de jeu.
  */
 function actualizePlateau() {
     actualizeSelection();
@@ -412,12 +425,16 @@ function actualizePlateau() {
 }
 
 /**
- * 
+ * Cette fonction actualise l'affichage des pions selectionnable et des cases où l'on peut déplacer le pion selectionné. Elle modifie aussi le z-index du pion selectionné.
  */
 function actualizeSelection() {
-    if (pionSelected != undefined) document.getElementById(pionSelected).style.border = 'solid 2px green';
+    if (pionSelected != undefined) {
+        document.getElementById(pionSelected).style.border = 'solid 2px green';
+        document.getElementById(pionSelected).style.zIndex = 3;
+    }
     if (lastPionSelected != undefined && pionSelected != lastPionSelected) {
         document.getElementById(lastPionSelected).style.border = 'solid 2px red';
+        setTimeout(function () {document.getElementById(lastPionSelected).style.zIndex = 2; }, 500);
     }
     for (let i = 0; i < lastTabCoupsPossible.length; i++) {
         document.getElementById(lastTabCoupsPossible[i]).style.backgroundColor = '#493D31';
@@ -453,7 +470,11 @@ function actualizeSelectable() {
  * 
  */
 function tour() {
-    if (!rafle) {
+    if (countB == 0) {
+        console.log('white a gagné')
+    } else if (countW == 0) {
+        console.log('black a gagné')
+    } else if (!rafle) {
         joueur = (joueur == 'w' ? 'b' : 'w');
         lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
         tabPionSelectable = defineMeilleurCoupsPossible(joueur);
@@ -461,9 +482,17 @@ function tour() {
     }
 }
 
-initTableau();
-initPlateau();
-initPion();
 
-tabPionSelectable = defineMeilleurCoupsPossible(joueur);
-actualizeSelectable();
+function start(){
+    initTableau();
+    initPlateau();
+    initPion();
+    joueur='w';
+    tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+    actualizeSelectable();
+}
+
+start();
+
+
+
