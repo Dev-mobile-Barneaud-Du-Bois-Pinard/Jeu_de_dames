@@ -1,20 +1,83 @@
-var tabCase = new Array;
+/**
+ * Tableau contenant une grille de l'état du tour actuel du jeu
+ */
+var tabCase = [];
+
+/**
+ * Tableau contenant une grille de l'état du tour precédent du jeu
+ */
+var lastTabCase = [];
+
+/**
+ * Element div dans le DOM, dans lequel seront contenu tous les autres éléments
+ */
 var main = document.getElementById('main');
-var pions = new Array;
+
+/**
+ * Pion actuellement sélectionné
+ */
 var pionSelected;
+
+/**
+ * Dernier pion selectionné
+ */
 var lastPionSelected;
+
+/**
+ * Tableau contenant tous les déplacements possible pour le pion sélectionné
+ */
 var tabCoupsPossible = [];
+
+/**
+ * Tableau contenant tous les déplacements possible pour le dernier pion sélectionné
+ */
 var lastTabCoupsPossible = [];
+
+/**
+ * Tableau contenant tous les déplacements, en mangeant un pion adverse, possible pour le pion sélectionné
+ */
 var tabMangerPossible = [];
+
+/**
+ * Tableau contenant tous les déplacements, en mangeant un pion adverse, possible pour le dernier pion sélectionné
+ */
 var lastTabMangerPossible = [];
+
+/**
+ * Tableau contenant tous les pions sélectionnables
+ */
 var tabPionSelectable = [];
+
+/**
+ * Tableau contenant tous les pions sélectionnables au tour précédent du jeu
+ */
 var lastTabPionSelectable = [];
+
+/**
+ * Dernière position enregistré avant le mouvement d'un pion
+ */
 var lastPos;
-var lastTabCase;
+
+/**
+ * Rafle en cours
+ */
 var rafle = false;
-var posEnemy;
+
+/**
+ * Joueur actif :
+ * 'w' : joueur blanc
+ * 'b' : joueur noir
+ */
 var joueur = 'w';
+
+/**
+ * Nombre de pion du joueur blanc
+ */
 var countW = 20;
+
+/**
+ * Nombre de pion du joueur noir
+ */
 var countB = 20;
 
 /**
@@ -28,9 +91,7 @@ class Position {
     }
 }
 
-function isInPlateau(pos = new Position()) {
-    return pos.x >= 0 && pos.x < 10 && pos.y >= 0 && pos.y < 10;
-}
+/*--------------------------------------------------------------Fonction d'initialisation du jeu et du plateau-----------------------------------------------------------------------*/
 
 /**
  * Créer une case dans le DOM à une position précisée en paramètre
@@ -75,7 +136,29 @@ function createPion(pos = new Position, name = 'null') {
 }
 
 /**
- * Créer le 
+ * Remplace un pion (précisé en paramètre) par une dame dans le DOM à une position précisée en paramètre, 
+ * si la position correspond et la couleur du pion sont concordantes et 
+ * si le pion n'est pas déjà une dame
+ * @param {Position} pos 
+ * @param {string} pion 
+ * @returns {boolean} true si le remplacement est effectué, false sinon
+ */
+function createDame(pos = lastPos, pion = pionSelected) {
+    if (pion.charAt(pion.length - 1) != 'd' && ((pos.y == 0 && pion.charAt(0) == 'w') || (pos.y == 9 && pion.charAt(0) == 'b'))) {
+        lastTabCase = JSON.parse(JSON.stringify(tabCase));
+        tabCase[pos.y][pos.x] = tabCase[pos.y][pos.x] + 'd';
+        lastPionSelected = undefined;
+        pionSelected = undefined;
+        actualizePlateau();
+        rafle = false;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Initialise le tableau contenant l'état du jeu.
+ * Ce tableau de données sera transféré entre les joueurs.
  */
 function initTableau() {
     let nbWhite = 1;
@@ -102,7 +185,7 @@ function initTableau() {
 }
 
 /**
- * 
+ * Initialise l'affichage du plateau de jeu.
  */
 function initPlateau() {
     for (let y = 0; y < 10; y++) {
@@ -113,7 +196,7 @@ function initPlateau() {
 }
 
 /**
- * 
+ * Initialise l'affichage des pions au sein du plateau de jeu.
  */
 function initPion() {
     for (let y = 0; y < 10; y++) {
@@ -123,10 +206,19 @@ function initPion() {
     }
 }
 
+/*---------------------------------------------------------------------------Fonction du jeu-----------------------------------------------------------------------------------------*/
+
 /**
+ * Appelé lors du clic sur un pion :
+ * Si aucune rafle est en cours et que le pion est selectionnable alors : lastPionSelected = pionSelected
+ * Si le pion cliqué était déjà selectionné alors : pionSelected = undefined 
+ * Sinon : pionSelected = id  
  * 
- * @param {*} id 
- * @returns 
+ * Ensuite si un pion est selectionné on enregistre sa position actuelle dans la variable lastPos, on définit les coups possible où il mange un adversaire
+ * Si il ne peut manger aucun adversaire, on définit les coups possible sans manger d'adversaire    
+ * 
+ * On appel la fonction actualizeSelection().          
+ * @param {string} id 
  */
 function selectPion(id) {
     if (!rafle || tabMangerPossible.length == 0) {
@@ -163,6 +255,7 @@ function selectPion(id) {
         }
     }
 }
+
 /**
  * Cette fonction retourne les coups possibles pour un pion/dame donné, à une position donnée dans un tableau de case donné.
  * Elle ne retourne que les coups qui ne mange pas de pion adverse.
@@ -194,6 +287,7 @@ function defineCoupsPossible(pos = lastPos, pion = pionSelected, tab = tabCase) 
     }
     return res;
 }
+
 /**
  * Cette fonction retourne les coups possibles pour un pion/dame donné, à une position donnée dans un tableau de case donné.
  * Elle ne retourne que les coups qui mange un pion adverse.
@@ -240,43 +334,11 @@ function defineMangerPossible(pos = lastPos, pion = pionSelected, tab = tabCase)
     return res;
 }
 
-/*----------------------------------------------------------------Fonction récursive de recherche du meilleur coups----------------------------------------------------------------- */
-/*-----------------------------------------------------------------INCOMPLETE A FINIR SI LE TEMPS EN FIN DE PROJET------------------------------------------------------------------ */
-/*
-function defineMeilleurCoupsPossible(joueur = 'w') {
-    let res = [];
-    for (let y = 0; y < 10; y++) {
-        for (let x = 0; x < 10; x++) {
-            if (tabCase[y][x].charAt(0) == joueur) {
-                let tab = JSON.parse(JSON.stringify(tabCase));
-                nbCoups = recursiveMeilleurCoupsPossible(tab, new Position(x, y),1);
-                console.log(nbCoups);
-                res.push([tabCase[y][x], nbCoups]);
-            }
-        }
-    }
-}
-
-function recursiveMeilleurCoupsPossible(tab = new Array, pos = new Position, i) {
-    let tabCoups = defineMangerPossible(pos, tab[pos.y][pos.x], tab);
-    let res = [];
-    for (let i = 0; i < tabCoups.length; i++) {
-        let newTab = JSON.parse(JSON.stringify(tab));
-        let newPos = new Position(parseInt(tabCoups[i].charAt(0)), parseInt(tabCoups[i].charAt(1)));
-        newTab[(newPos.y + pos.y) / 2][(newPos.x + pos.x) / 2] = 'empty';
-        newTab[newPos.y][newPos.x] = newTab[pos.y][pos.x];
-        newTab[pos.y][pos.x] = 'empty';
-        res.push([''+pos.x+pos.y,i])
-        res.push(recursiveMeilleurCoupsPossible(newTab, newPos, i+1));
-    }
-    return res;
-}
-*/
-
 /**
- * 
- * @param {*} j 
- * @returns 
+ * Retourne, pour un joueur (précisé en paramètres), un tableau contenant l'id de tous les pions pouvant manger au moins 1 pion à l'adversaire,
+ * si aucun pion ne peut manger alors la fonction retourne un tableau contenant l'id de tous les pions pouvant se déplacer
+ * @param {string} j : joueur actif
+ * @returns {Array} res : tableau contenant l'id de tous les pions selectionnnables
  */
 function defineMeilleurCoupsPossible(j = joueur) {
     let res = [];
@@ -306,8 +368,14 @@ function defineMeilleurCoupsPossible(j = joueur) {
 }
 
 /**
+ * Appelé au clic sur une case
  * 
- * @param {*} pos 
+ * Si un pion est selectionné et que ce dernier peut se déplacer sur la case cliqué alors on déplace le pion dans tabCase.
+ * Si le pion mange un adversaire on le modifie dans tabCase et on vérifie si une rafle est possible.
+ * Si une dame est créé on interromp la rafle en cours.
+ * 
+ * Enfin on appel la fonction actualizePlateau, actualizeSelection() et tour().
+ * @param {Position} pos 
  */
 function moveTo(pos = new Position) {
     if (pionSelected != undefined) {
@@ -349,7 +417,7 @@ function moveTo(pos = new Position) {
                         tabCase[y0][x0] = 'r' + tabCase[y0][x0];
                         if (tabCase[y0][x0].charAt(1) == 'w') countW--;
                         else if (tabCase[y0][x0].charAt(1) == 'b') countB--;
-                        console.log("white : "+countW,"black : "+countB)
+                        console.log("white : " + countW, "black : " + countB)
                     }
                 }
                 lastTabMangerPossible = JSON.parse(JSON.stringify(tabMangerPossible));
@@ -373,25 +441,44 @@ function moveTo(pos = new Position) {
     }
 }
 
-/**
- * 
- * @param {*} pos 
- * @param {*} pion 
- * @returns 
- */
-function createDame(pos = lastPos, pion = pionSelected) {
-    if (pion.charAt(pion.length - 1) != 'd' && ((pos.y == 0 && pion.charAt(0) == 'w') || (pos.y == 9 && pion.charAt(0) == 'b'))) {
-        lastTabCase = JSON.parse(JSON.stringify(tabCase));
-        tabCase[pos.y][pos.x] = tabCase[pos.y][pos.x] + 'd';
-        lastPionSelected = undefined;
-        pionSelected = undefined;
-        actualizePlateau();
-        rafle = false;
-        return true;
-    }
-    return false;
+function isInPlateau(pos = new Position()) {
+    return pos.x >= 0 && pos.x < 10 && pos.y >= 0 && pos.y < 10;
 }
 
+/*----------------------------------------------------------------Fonction récursive de recherche du meilleur coups------------------------------------------------------------------*/
+/*-----------------------------------------------------------------INCOMPLETE A FINIR SI LE TEMPS EN FIN DE PROJET-------------------------------------------------------------------*/
+/*
+function defineMeilleurCoupsPossible(joueur = 'w') {
+    let res = [];
+    for (let y = 0; y < 10; y++) {
+        for (let x = 0; x < 10; x++) {
+            if (tabCase[y][x].charAt(0) == joueur) {
+                let tab = JSON.parse(JSON.stringify(tabCase));
+                nbCoups = recursiveMeilleurCoupsPossible(tab, new Position(x, y),1);
+                console.log(nbCoups);
+                res.push([tabCase[y][x], nbCoups]);
+            }
+        }
+    }
+}
+
+function recursiveMeilleurCoupsPossible(tab = new Array, pos = new Position, i) {
+    let tabCoups = defineMangerPossible(pos, tab[pos.y][pos.x], tab);
+    let res = [];
+    for (let i = 0; i < tabCoups.length; i++) {
+        let newTab = JSON.parse(JSON.stringify(tab));
+        let newPos = new Position(parseInt(tabCoups[i].charAt(0)), parseInt(tabCoups[i].charAt(1)));
+        newTab[(newPos.y + pos.y) / 2][(newPos.x + pos.x) / 2] = 'empty';
+        newTab[newPos.y][newPos.x] = newTab[pos.y][pos.x];
+        newTab[pos.y][pos.x] = 'empty';
+        res.push([''+pos.x+pos.y,i])
+        res.push(recursiveMeilleurCoupsPossible(newTab, newPos, i+1));
+    }
+    return res;
+}
+*/
+
+/*---------------------------------------------------------Fonction d'affichage du plateau dans le DOM-------------------------------------------------------------------------------*/
 
 /**
  * Cette fonction appel la fonction actualizeSelection(). Puis elle actualise l'affichage des pions sur le plateau en fonction des changements dans le tableau de jeu.
@@ -425,7 +512,7 @@ function actualizePlateau() {
 }
 
 /**
- * Cette fonction actualise l'affichage des pions selectionnable et des cases où l'on peut déplacer le pion selectionné. Elle modifie aussi le z-index du pion selectionné.
+ * Cette fonction actualise l'affichage des pions selectionné ou déselectionné et des cases où l'on peut déplacer le pion selectionné. Elle modifie aussi le z-index du pion selectionné.
  */
 function actualizeSelection() {
     if (pionSelected != undefined) {
@@ -434,7 +521,7 @@ function actualizeSelection() {
     }
     if (lastPionSelected != undefined && pionSelected != lastPionSelected) {
         document.getElementById(lastPionSelected).style.border = 'solid 2px red';
-        setTimeout(function () {document.getElementById(lastPionSelected).style.zIndex = 2; }, 500);
+        document.getElementById(lastPionSelected).style.zIndex = 2;
     }
     for (let i = 0; i < lastTabCoupsPossible.length; i++) {
         document.getElementById(lastTabCoupsPossible[i]).style.backgroundColor = '#493D31';
@@ -453,7 +540,7 @@ function actualizeSelection() {
 }
 
 /**
- * 
+ * Cette fonction actualise l'affichage des pions selectionnable.
  */
 function actualizeSelectable() {
     for (let i = 0; i < lastTabPionSelectable.length; i++) {
@@ -466,8 +553,12 @@ function actualizeSelectable() {
     }
 }
 
+/*------------------------------------------------------------------Fonction de routine du jeu---------------------------------------------------------------------------------------*/
+
 /**
- * 
+ * Change le joueur actif a chaque appel, 
+ * vérifie si un des deux joueurs a gagné, 
+ * actualize tabPionSelectable avec le nouveau joueur actif et appel la fonction actualizeSelectable.
  */
 function tour() {
     if (countB == 0) {
@@ -482,17 +573,16 @@ function tour() {
     }
 }
 
-
-function start(){
+/**
+ * Appel les fonctions d'initialisation et lance le jeu
+ */
+function start() {
     initTableau();
     initPlateau();
     initPion();
-    joueur='w';
+    joueur = 'w';
     tabPionSelectable = defineMeilleurCoupsPossible(joueur);
     actualizeSelectable();
 }
 
 start();
-
-
-
