@@ -89,6 +89,12 @@ class Position {
         this.x = x;
         this.y = y;
     }
+    /**
+     * @returns {boolean} : true si la position est dans le plateau, false sinon
+     */
+    isInPlateau() {
+        return this.x >= 0 && this.x < 10 && this.y >= 0 && this.y < 10;
+    }
 }
 
 /*--------------------------------------------------------------Fonction d'initialisation du jeu et du plateau-----------------------------------------------------------------------*/
@@ -272,7 +278,7 @@ function defineCoupsPossible(pos = lastPos, pion = pionSelected, tab = tabCase) 
                 for (let i = 1; i < 10; i++) {
                     let x1 = pos.x - x * i;
                     let y1 = pos.y - y * i;
-                    if (isInPlateau(new Position(x1, y1)) && tab[y1][x1] == 'empty') res.push('' + (x1) + (y1));
+                    if (new Position(x1, y1).isInPlateau() && tab[y1][x1] == 'empty') res.push('' + (x1) + (y1));
                     else i = 10;
                 }
             }
@@ -282,8 +288,8 @@ function defineCoupsPossible(pos = lastPos, pion = pionSelected, tab = tabCase) 
         if (pion.charAt(0) == 'w') y = pos.y - 1;
         let x1 = pos.x + 1;
         let x2 = pos.x - 1;
-        if (tab[y][x1] == 'empty' && isInPlateau(new Position(x1, y))) res.push('' + (x1) + (y));
-        if (tab[y][x2] == 'empty' && isInPlateau(new Position(x2, y))) res.push('' + (x2) + (y));
+        if (tab[y][x1] == 'empty' && new Position(x1, y).isInPlateau()) res.push('' + (x1) + (y));
+        if (tab[y][x2] == 'empty' && new Position(x2, y).isInPlateau()) res.push('' + (x2) + (y));
     }
     return res;
 }
@@ -305,7 +311,7 @@ function defineMangerPossible(pos = lastPos, pion = pionSelected, tab = tabCase)
                 for (let i = 1; i < 10; i++) {
                     let x1 = pos.x - x * i;
                     let y1 = pos.y - y * i;
-                    if (isInPlateau(new Position(x1, y1))) {
+                    if (new Position(x1, y1).isInPlateau()) {
                         if ((tab[y1][x1].charAt(0) == 'w' && joueur == 'b') || (tab[y1][x1].charAt(0) == 'b' && joueur == 'w')) {
                             if (enemy) i = 10;
                             else enemy = true;
@@ -319,7 +325,7 @@ function defineMangerPossible(pos = lastPos, pion = pionSelected, tab = tabCase)
     } else {
         for (let x = -2; x <= 2; x = x + 4) {
             for (let y = -2; y <= 2; y = y + 4) {
-                if (isInPlateau(new Position(pos.x + x, pos.y + y))) {
+                if (new Position(pos.x + x, pos.y + y).isInPlateau()) {
                     let x1 = pos.x + x / 2;
                     let x2 = pos.x + x;
                     let y1 = pos.y + y / 2;
@@ -439,10 +445,6 @@ function moveTo(pos = new Position) {
             }
         }
     }
-}
-
-function isInPlateau(pos = new Position()) {
-    return pos.x >= 0 && pos.x < 10 && pos.y >= 0 && pos.y < 10;
 }
 
 /*----------------------------------------------------------------Fonction récursive de recherche du meilleur coups------------------------------------------------------------------*/
