@@ -454,7 +454,7 @@ function moveTo(pos = new Position) {
                         y0++;
                     }
                     if ((tabCase[y0][x0].charAt(0) == 'w' && joueur == 'b') || (tabCase[y0][x0].charAt(0) == 'b' && joueur == 'w')) {
-                        tabCase[y0][x0] = 'r' + tabCase[y0][x0];
+                        tabCase[y0][x0] = 'empty';
                         if (tabCase[y0][x0].charAt(1) == 'w') countW--;
                         else if (tabCase[y0][x0].charAt(1) == 'b') countB--;
                         console.log("white : " + countW, "black : " + countB)
@@ -530,11 +530,11 @@ function actualizePlateau() {
                         pion.style.opacity = '0';
                         setTimeout(function () { pion.remove() }, 1500);
                         createPion(new Position(x, y), tabCase[y][x]);
-                    } else if (tabCase[y][x] != 'empty' && tabCase[y][x].charAt(0) != 'r') {
+                    } else if (tabCase[y][x] != 'empty') {
                         let pion = document.getElementById(tabCase[y][x]);
                         pion.style.marginTop = y * 60 + 5 + 'px';
                         pion.style.marginLeft = x * 60 + 5 + 'px';
-                    } else if (tabCase[y][x].charAt(0) == 'r') {
+                    } else if (tabCase[y][x] == 'empty' && lastTabCase[y][x].charAt(0)!=joueur) {
                         let pion = document.getElementById(lastTabCase[y][x]);
                         pion.style.opacity = '0';
                         tabCase[y][x] = 'empty';
@@ -613,6 +613,16 @@ function tour() {
         console.log('on va envoyer : '+JSON.stringify({player:joueur,lastplayer:lastjoueur,plateau:tabCase}))
         ws.send(JSON.stringify({datatype:'gamestate',player:joueur,lastplayer:lastjoueur,plateau:tabCase}));
         actualizePlateau();
+    }else{
+        lastjoueur = joueur;
+        console.log('ET LA joueur = '+joueur+' ET lastjoueur = '+lastjoueur);
+        lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
+        tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+        actualizeSelectable();
+        //Envoyer l'état du jeu au serveur à cette étape
+        console.log('on va envoyer : '+JSON.stringify({player:joueur,lastplayer:lastjoueur,plateau:tabCase}))
+        ws.send(JSON.stringify({datatype:'gamestate',player:joueur,lastplayer:lastjoueur,plateau:tabCase}));
+        actualizePlateau();
     }
 }
 
@@ -645,9 +655,10 @@ ws.onmessage = function(e) { //Fonctions de réceptions de messages
             document.getElementById('inputMessage').innerHTML="à votre adversaire de jouer"
             canplay = false;
         }    
-        if(JSON.parse(e.data).lastjoueur!=joueur){
+        if(JSON.parse(e.data).lastplayer!=joueur){
             lastTabCase = JSON.parse(JSON.stringify(tabCase));
             tabCase = JSON.parse(e.data).plateau;
+            lastjoueur = JSON.parse(e.data).lastplayer;
             actualizePlateau();
         }
         lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
