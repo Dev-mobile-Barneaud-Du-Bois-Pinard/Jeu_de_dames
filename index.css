@@ -19,6 +19,36 @@
     z-index: 2;
     text-align: center;
     border-radius: 100%;
-    transition: margin 1s, opacity 1s;
+    transition: margin 1s, opacity 1s, z-index 0.5s;
     transition-delay: opacity 0.5;
 }
+
+@font-face {
+    font-family: Pixel4;
+    src: url(PixelNES.otf);
+  }
+  #gameover{
+    position: absolute;
+    display: none;
+    font-size: 4em;
+    margin-top: 220px;
+    font-family : Pixel4; 
+    animation : gameover 1s;
+    width:592px;
+    text-align: center;
+    background-color: #FFEECF;
+    color:#493D31;
+    border: solid 4px #493D31;
+    z-index:4;
+  }
+
+
+  @keyframes gameover {
+    0% {
+      opacity: 0;
+      transform : translateY(-100px);
+    }  
+    100% { 
+      opacity: 1;
+    }
+  }

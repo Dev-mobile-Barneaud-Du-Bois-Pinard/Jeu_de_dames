@@ -1,3 +1,5 @@
+var gameover = document.getElementById('gameover');
+
 /**
  * Tableau contenant une grille de l'état du tour actuel du jeu
  */
@@ -563,16 +565,21 @@ function actualizeSelectable() {
  * actualize tabPionSelectable avec le nouveau joueur actif et appel la fonction actualizeSelectable.
  */
 function tour() {
+    lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
     if (countB == 0) {
-        console.log('white a gagné')
+        gameover.innerHTML = 'Victoire du joueur blanc';
+        gameover.style.display='block';
+        tabPionSelectable = [];
     } else if (countW == 0) {
-        console.log('black a gagné')
+        gameover.innerHTML = 'Victoire du joueur noir';
+        gameover.style.display='block';
+        tabPionSelectable = [];
     } else if (!rafle) {
         joueur = (joueur == 'w' ? 'b' : 'w');
-        lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
         tabPionSelectable = defineMeilleurCoupsPossible(joueur);
-        actualizeSelectable();
     }
+    actualizeSelectable();
+    if(joueur=='b') setTimeout(joueurRandom,500);
 }
 
 /**
@@ -585,6 +592,18 @@ function start() {
     joueur = 'w';
     tabPionSelectable = defineMeilleurCoupsPossible(joueur);
     actualizeSelectable();
+}
+
+/**
+ * 
+ */
+function joueurRandom(){
+    selectPion(tabPionSelectable[Math.floor(Math.random()*tabPionSelectable.length)]);
+    let id;
+    if(tabMangerPossible.length!=0) id=tabMangerPossible[Math.floor(Math.random()*tabMangerPossible.length)];
+    else id = tabCoupsPossible[Math.floor(Math.random()*tabCoupsPossible.length)];
+    pos = new Position(parseInt(id.charAt(0)),parseInt(id.charAt(1)));
+    setTimeout(moveTo,500,pos);
 }
 
 start();
