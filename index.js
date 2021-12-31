@@ -83,6 +83,11 @@ var countW = 20;
 var countB = 20;
 
 /**
+ * true si la partie se joue contre un joueur random, false sinon
+ */
+var ia = false;
+
+/**
  * Classe position
  * Possède deux attributs x et y représentant respectivant la position sur l'axe des abscisses et l'axe des ordonnées
  */
@@ -422,10 +427,10 @@ function moveTo(pos = new Position) {
                         y0++;
                     }
                     if ((tabCase[y0][x0].charAt(0) == 'w' && joueur == 'b') || (tabCase[y0][x0].charAt(0) == 'b' && joueur == 'w')) {
-                        tabCase[y0][x0] = 'r' + tabCase[y0][x0];
-                        if (tabCase[y0][x0].charAt(1) == 'w') countW--;
-                        else if (tabCase[y0][x0].charAt(1) == 'b') countB--;
-                        console.log("white : " + countW, "black : " + countB)
+                        tabCase[y0][x0] = 'empty';
+                        if (lastTabCase[y0][x0].charAt(0) == 'w') countW--;
+                        else if (lastTabCase[y0][x0].charAt(0) == 'b') countB--;
+                        console.log("white : " + countW, "black : " + countB);
                     }
                 }
                 lastTabMangerPossible = JSON.parse(JSON.stringify(tabMangerPossible));
@@ -498,11 +503,11 @@ function actualizePlateau() {
                         pion.style.opacity = '0';
                         setTimeout(function () { pion.remove() }, 1500);
                         createPion(new Position(x, y), tabCase[y][x]);
-                    } else if (tabCase[y][x] != 'empty' && tabCase[y][x].charAt(0) != 'r') {
+                    } else if (tabCase[y][x] != 'empty') {
                         let pion = document.getElementById(tabCase[y][x]);
                         pion.style.marginTop = y * 60 + 5 + 'px';
                         pion.style.marginLeft = x * 60 + 5 + 'px';
-                    } else if (tabCase[y][x].charAt(0) == 'r') {
+                    } else if (tabCase[y][x] == 'empty' && lastTabCase[y][x].charAt(0)!=joueur) {
                         let pion = document.getElementById(lastTabCase[y][x]);
                         pion.style.opacity = '0';
                         tabCase[y][x] = 'empty';
@@ -579,16 +584,20 @@ function tour() {
         tabPionSelectable = defineMeilleurCoupsPossible(joueur);
     }
     actualizeSelectable();
-    if(joueur=='b') setTimeout(joueurRandom,500);
+    if(joueur=='b' && ia) setTimeout(joueurRandom,500);
 }
 
 /**
- * Appel les fonctions d'initialisation et lance le jeu
+ * Lance une partie de dames :
+ * - contre l'ordinateur si random == true
+ * - contre un autre joueur si random == false
+ * @param {boolean} random 
  */
-function start() {
+function start(random=false) {
     initTableau();
     initPlateau();
     initPion();
+    ia=random;
     joueur = 'w';
     tabPionSelectable = defineMeilleurCoupsPossible(joueur);
     actualizeSelectable();
