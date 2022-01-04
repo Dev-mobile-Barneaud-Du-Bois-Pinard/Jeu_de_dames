@@ -190,6 +190,7 @@ function onDeviceReady() {
             lastPionSelected = undefined;
             pionSelected = undefined;
             actualizePlateau();
+            ws
             rafle = false;
             return true;
         }
@@ -525,15 +526,24 @@ function onDeviceReady() {
             for (let y = 0; y < 10; y++) {
                 for (let x = 0; x < 10; x++) {
                     if (tabCase[y][x] != lastTabCase[y][x]) {
-                        if (tabCase[y][x].charAt(tabCase[y][x].length - 1) == 'd' && tabCase[y][x].substring(0, tabCase[y][x].length - 1) == lastTabCase[y][x]) {
-                            let pion = document.getElementById(lastTabCase[y][x]);
+                        newDame = false;
+                        namelastpion = tabCase[y][x].substring(0, tabCase[y][x].length - 1);
+                        lastTabCase.forEach(function (item) {
+                            if (item.includes(namelastpion)) newDame = true;
+                        })
+                        if (newDame && tabCase[y][x].charAt(tabCase[y][x].length - 1) == 'd') {
+                            console.error("On créé un dame !");
+                            let pion = document.getElementById(namelastpion);
                             pion.style.opacity = '0';
-                            setTimeout(function () { pion.remove() }, 1500);
+                            pion.remove();
                             createPion(new Position(x, y), tabCase[y][x]);
-                        } else if (tabCase[y][x] != 'empty') {
+                        }
+                        else if (tabCase[y][x] != 'empty') {
                             let pion = document.getElementById(tabCase[y][x]);
-                            pion.style.marginTop = y * 60 + 5 + 'px';
-                            pion.style.marginLeft = x * 60 + 5 + 'px';
+                            if (pion != null) {
+                                pion.style.marginTop = y * 60 + 5 + 'px';
+                                pion.style.marginLeft = x * 60 + 5 + 'px';
+                            }
                         } else if (tabCase[y][x] == 'empty' && lastTabCase[y][x].charAt(0) != j) {
                             let pion = document.getElementById(lastTabCase[y][x]);
                             pion.style.opacity = '0';
@@ -581,11 +591,11 @@ function onDeviceReady() {
     function actualizeSelectable() {
         for (let i = 0; i < lastTabPionSelectable.length; i++) {
             let pion = document.getElementById(lastTabPionSelectable[i]);
-            pion.style.border = 'solid 2px #FFEECF';
+            if (pion != null) pion.style.border = 'solid 2px #FFEECF';
         }
         for (let i = 0; i < tabPionSelectable.length; i++) {
             let pion = document.getElementById(tabPionSelectable[i]);
-            pion.style.border = 'solid 2px red';
+            if (pion != null) pion.style.border = 'solid 2px red';
         }
     }
 
@@ -603,6 +613,8 @@ function onDeviceReady() {
             console.log('black a gagné')
         } else if (!rafle) {
             console.log('ICI joueur = ' + joueur);
+            lastPionSelected = pionSelected;
+            pionSelected = undefined;
             lastjoueur = joueur;
             joueur = (joueur == 'w' ? 'b' : 'w');
             console.log('ET LA joueur = ' + joueur + ' ET lastjoueur = ' + lastjoueur);
@@ -645,6 +657,7 @@ function onDeviceReady() {
         }
         else if (JSON.parse(e.data).datatype == 'gamestate') {
             joueur = JSON.parse(e.data).player;
+            lastjoueur = JSON.parse(e.data).lastplayer;
             if (w && JSON.parse(e.data).player == 'w' || b && JSON.parse(e.data).player == 'b') {
                 document.getElementById('inputMessage').innerHTML = "à vous de jouer"
                 canplay = true;
@@ -653,10 +666,13 @@ function onDeviceReady() {
                 document.getElementById('inputMessage').innerHTML = "à votre adversaire de jouer"
                 canplay = false;
             }
-            lastTabCase = JSON.parse(JSON.stringify(tabCase));
-            tabCase = JSON.parse(e.data).plateau;
-            lastjoueur = JSON.parse(e.data).lastplayer;
-            actualizePlateau(lastjoueur);
+            if (lastjoueur == 'w' && b || lastjoueur == 'b' && w) {
+                lastTabCase = JSON.parse(JSON.stringify(tabCase));
+                tabCase = JSON.parse(e.data).plateau;
+                console.warn("Ca marche !");
+                console.log(tabCase);
+                actualizePlateau(lastjoueur);
+            }
             lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
             tabPionSelectable = defineMeilleurCoupsPossible(JSON.parse(e.data).player);
             actualizeSelectable();
