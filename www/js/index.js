@@ -3,24 +3,29 @@ function onDeviceReady() {
     var platform = device.platform;
     if (platform == "browser") {
         var ws = new WebSocket('ws://127.0.0.1:9898/');
-        var browser = true;
+        // var browser = true;
     }
     else if (platform == "Android") {
         var ws = new WebSocket('ws://10.0.2.2:9898/');
-        var android = true;
+        // var android = true;
     }
     else {
         var ws = new WebSocket('ws://10.0.2.2:9898/');
     }
 
-    if (browser) {
-        var w = true;
-    }
-    else {
-        var b = true;
-    }
+    // if (browser) {
+    //     var w = true;
+    // }
+    // else {
+    //     var b = true;
+    // }
 
-    let canplay = w ? true : false;
+    // let canplay = w ? true : false;
+
+    var w = false;
+    var b = false;
+    var canplay = false;
+    var gameID;
 
     ws.onopen = function () { //Ouverture de la connexion
         console.log('Ouverture de la connexion')
@@ -623,7 +628,7 @@ function onDeviceReady() {
             actualizeSelectable();
             //Envoyer l'état du jeu au serveur à cette étape
             console.log('on va envoyer : ' + JSON.stringify({ player: joueur, lastplayer: lastjoueur, plateau: tabCase }))
-            ws.send(JSON.stringify({ datatype: 'gamestate', player: joueur, lastplayer: lastjoueur, plateau: tabCase }));
+            ws.send(JSON.stringify({ datatype: 'gamestate', gameID: gameID, player: joueur, lastplayer: lastjoueur, plateau: tabCase }));
         } else {
             lastjoueur = joueur;
             console.log('ET LA joueur = ' + joueur + ' ET lastjoueur = ' + lastjoueur);
@@ -632,7 +637,7 @@ function onDeviceReady() {
             actualizeSelectable();
             //Envoyer l'état du jeu au serveur à cette étape
             console.log('on va envoyer : ' + JSON.stringify({ player: joueur, lastplayer: lastjoueur, plateau: tabCase }))
-            ws.send(JSON.stringify({ datatype: 'gamestate', player: joueur, lastplayer: lastjoueur, plateau: tabCase }));
+            ws.send(JSON.stringify({ datatype: 'gamestate', gameID: gameID, player: joueur, lastplayer: lastjoueur, plateau: tabCase }));
         }
     }
 
@@ -654,6 +659,16 @@ function onDeviceReady() {
         console.log('réception de : ' + e.data)
         if (JSON.parse(e.data).datatype == 'conn') {
             document.getElementById('inputMessage').innerHTML = JSON.parse(e.data).identification;
+        }
+        else if (JSON.parse(e.data).datatype == 'gamestart') {
+            gameID = JSON.parse(e.data).gameID;
+            if(JSON.parse(e.data).player == 'w'){
+                w = true;
+                canplay = true;
+            }
+            else{
+                b = true;
+            }
         }
         else if (JSON.parse(e.data).datatype == 'gamestate') {
             joueur = JSON.parse(e.data).player;
