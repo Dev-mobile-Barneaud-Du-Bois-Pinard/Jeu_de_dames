@@ -61,14 +61,77 @@ body {
     }
 }
 
-h1 {
-    font-size:24px;
-    font-weight:normal;
-    margin:0px;
-    overflow:visible;
-    padding:0px;
-    text-align:center;
+@media screen and (min-width:600px) {
+    h1 {
+        font-size:24px;
+        font-weight:normal;
+        margin:0px;
+        overflow:visible;
+        padding:0px;
+        text-align:center;
+    }
+    #main{
+        margin: auto;
+        border: solid black 2px;
+        width:600px;
+        height:600px;
+    }
+    .case{
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        z-index: 1;
+    }
+    
+    .pion{
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        border: solid 2px #FFEECF;
+        z-index: 2;
+        text-align: center;
+        border-radius: 100%;
+        transition: margin 1s, opacity 1s;
+        transition-delay: opacity 0.5;
+    }
 }
+
+@media screen and (max-width:600px) {
+    h1 {
+        font-size:12px;
+        font-weight:normal;
+        margin:0px;
+        overflow:visible;
+        padding:0px;
+        text-align:center;
+    }
+    #main{
+        margin: auto;
+        border: solid black 2px;
+        width:340px;
+        height:340px;
+    }
+    .case{
+        position: absolute;
+        width: 34px;
+        height: 34px;
+        z-index: 1;
+    }
+    
+    .pion{
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border: solid 2px #FFEECF;
+        z-index: 2;
+        text-align: center;
+        border-radius: 100%;
+        transition: margin 1s, opacity 1s;
+        transition-delay: opacity 0.5;
+    }
+}
+
+
 
 .event {
     border-radius:4px;
@@ -109,27 +172,3 @@ h1 {
     }
 }
 
-#main{
-    margin: auto;
-    border: solid black 2px;
-    width:600px;
-    height:600px;
-}
-.case{
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    z-index: 1;
-}
-
-.pion{
-    position: absolute;
-    width: 46px;
-    height: 46px;
-    border: solid 2px #FFEECF;
-    z-index: 2;
-    text-align: center;
-    border-radius: 100%;
-    transition: margin 1s, opacity 1s;
-    transition-delay: opacity 0.5;
-}

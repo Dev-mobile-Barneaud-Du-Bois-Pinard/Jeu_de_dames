@@ -36,7 +36,8 @@ function onDeviceReady() {
         ws.send(JSON.stringify({ datatype: 'conn', login: document.getElementById('login').value, pwd: document.getElementById('password').value }))
     }
 
-
+    var smartphone = false; 
+    if(window.screen.width<600) smartphone = true;
     /**
  * Tableau contenant une grille de l'état du tour actuel du jeu
  */
@@ -145,8 +146,13 @@ function onDeviceReady() {
     function createCase(pos = new Position) {
         let div = document.createElement('div');
         div.className = 'case';
-        div.style.marginTop = pos.y * 60 + 'px';
-        div.style.marginLeft = pos.x * 60 + 'px';
+        if(smartphone){
+            div.style.marginTop = pos.y * 34 + 'px';
+            div.style.marginLeft = pos.x * 34 + 'px';
+        }else{
+            div.style.marginTop = pos.y * 60 + 'px';
+            div.style.marginLeft = pos.x * 60 + 'px';
+        }
         if ((pos.x + pos.y) % 2 == 0) {
             div.style.backgroundColor = '#FFEECF';
         } else {
@@ -164,8 +170,13 @@ function onDeviceReady() {
      */
     function createPion(pos = new Position, name = 'null') {
         let circle = document.createElement('div');
-        circle.style.marginTop = pos.y * 60 + 5 + 'px';
-        circle.style.marginLeft = pos.x * 60 + 5 + 'px';
+        if(smartphone){
+            circle.style.marginTop = pos.y * 34 + 2 + 'px';
+            circle.style.marginLeft = pos.x * 34 + 2 + 'px';
+        }else{
+            circle.style.marginTop = pos.y * 60 + 5 + 'px';
+            circle.style.marginLeft = pos.x * 60 + 5 + 'px';
+        }
         circle.className = 'pion';
         circle.id = name;
         circle.onclick = function () { selectPion(circle.id) };
@@ -546,8 +557,13 @@ function onDeviceReady() {
                         else if (tabCase[y][x] != 'empty') {
                             let pion = document.getElementById(tabCase[y][x]);
                             if (pion != null) {
-                                pion.style.marginTop = y * 60 + 5 + 'px';
-                                pion.style.marginLeft = x * 60 + 5 + 'px';
+                                if(smartphone){
+                                    pion.style.marginTop = y * 34 + 2 + 'px';
+                                    pion.style.marginLeft = x * 34 + 2 + 'px';
+                                }else{
+                                    pion.style.marginTop = y * 60 + 5 + 'px';
+                                    pion.style.marginLeft = x * 60 + 5 + 'px';
+                                }
                             }
                         } else if (tabCase[y][x] == 'empty' && lastTabCase[y][x].charAt(0) != j) {
                             let pion = document.getElementById(lastTabCase[y][x]);
