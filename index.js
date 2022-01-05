@@ -174,6 +174,8 @@ function createDame(pos = lastPos, pion = pionSelected) {
  * Ce tableau de données sera transféré entre les joueurs.
  */
 function initTableau() {
+    lastTabCase = [];
+    tabCase = [];
     let nbWhite = 1;
     let nbBlack = 1;
     for (let y = 0; y < 10; y++) {
@@ -507,7 +509,7 @@ function actualizePlateau() {
                         let pion = document.getElementById(tabCase[y][x]);
                         pion.style.marginTop = y * 60 + 5 + 'px';
                         pion.style.marginLeft = x * 60 + 5 + 'px';
-                    } else if (tabCase[y][x] == 'empty' && lastTabCase[y][x].charAt(0)!=joueur) {
+                    } else if (tabCase[y][x] == 'empty' && lastTabCase[y][x].charAt(0) != joueur) {
                         let pion = document.getElementById(lastTabCase[y][x]);
                         pion.style.opacity = '0';
                         tabCase[y][x] = 'empty';
@@ -573,18 +575,31 @@ function tour() {
     lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
     if (countB == 0) {
         gameover.innerHTML = 'Victoire du joueur blanc';
-        gameover.style.display='block';
+        gameover.style.display = 'block';
         tabPionSelectable = [];
     } else if (countW == 0) {
         gameover.innerHTML = 'Victoire du joueur noir';
-        gameover.style.display='block';
+        gameover.style.display = 'block';
         tabPionSelectable = [];
-    } else if (!rafle) {
-        joueur = (joueur == 'w' ? 'b' : 'w');
-        tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+    } else {
+        if (!rafle) {
+            joueur = (joueur == 'w' ? 'b' : 'w');
+            tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+        }
+        actualizeSelectable();
+        if (tabPionSelectable.length == 0) {
+            if (joueur == 'w') {
+                gameover.innerHTML = 'Victoire du joueur noir';
+                gameover.style.display = 'block';
+                tabPionSelectable = [];
+            } else {
+                gameover.innerHTML = 'Victoire du joueur blanc';
+                gameover.style.display = 'block';
+                tabPionSelectable = [];
+            }
+        } else if (joueur == 'b' && ia) setTimeout(joueurRandom, 500);
+        else if (joueur == 'w' && ia) setTimeout(joueurRandom, 500);
     }
-    actualizeSelectable();
-    if(joueur=='b' && ia) setTimeout(joueurRandom,500);
 }
 
 /**
@@ -593,26 +608,53 @@ function tour() {
  * - contre un autre joueur si random == false
  * @param {boolean} random 
  */
-function start(random=false) {
+function start(random = false) {
+    countW = 20;
+    countB = 20;
     initTableau();
-    initPlateau();
     initPion();
-    ia=random;
+    ia = random;
     joueur = 'w';
     tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+    if (joueur == 'w' && ia) setTimeout(joueurRandom, 500);
     actualizeSelectable();
+}
+
+function clear() {
+    for (let y = 0; y < tabCase.length; y++) {
+        for (let x = 0; x < tabCase[y].length; x++) {
+            if (tabCase[y][x] != 'empty' && tabCase[y][x] != 'null') {
+                let pion = document.getElementById(tabCase[y][x]);
+                if (pion != null) pion.remove();
+            }
+        }
+    }
+    tabCoupsPossible = [];
+    lastTabCoupsPossible = [];
+    tabMangerPossible = [];
+    lastTabMangerPossible = [];
+    tabPionSelectable = [];
+    lastTabPionSelectable = [];
+}
+
+function restart() {
+    gameover.style.display = 'none';
+    clear();
+    start(ia);
 }
 
 /**
  * 
  */
-function joueurRandom(){
-    selectPion(tabPionSelectable[Math.floor(Math.random()*tabPionSelectable.length)]);
+function joueurRandom() {
+    selectPion(tabPionSelectable[Math.floor(Math.random() * tabPionSelectable.length)]);
     let id;
-    if(tabMangerPossible.length!=0) id=tabMangerPossible[Math.floor(Math.random()*tabMangerPossible.length)];
-    else id = tabCoupsPossible[Math.floor(Math.random()*tabCoupsPossible.length)];
-    pos = new Position(parseInt(id.charAt(0)),parseInt(id.charAt(1)));
-    setTimeout(moveTo,500,pos);
+    if (tabMangerPossible.length != 0) id = tabMangerPossible[Math.floor(Math.random() * tabMangerPossible.length)];
+    else id = tabCoupsPossible[Math.floor(Math.random() * tabCoupsPossible.length)];
+    pos = new Position(parseInt(id.charAt(0)), parseInt(id.charAt(1)));
+    setTimeout(moveTo, 500, pos);
 }
 
-start();
+
+initPlateau();
+start(true);
