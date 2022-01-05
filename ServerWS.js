@@ -57,6 +57,7 @@ wsServer.on("request", function (request) {
           })
         );
         if (queue[0].length == 1) {
+          // TODO: gérer être seul dans la file
         //   connection.send(
         //     JSON.stringify({ datatype: "gamestart", versus: "random" })
         //   );
