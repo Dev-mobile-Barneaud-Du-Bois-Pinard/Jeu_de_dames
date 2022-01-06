@@ -3,24 +3,13 @@ function onDeviceReady() {
     var platform = device.platform;
     if (platform == "browser") {
         var ws = new WebSocket('ws://127.0.0.1:9898/');
-        // var browser = true;
     }
     else if (platform == "Android") {
         var ws = new WebSocket('ws://10.0.2.2:9898/');
-        // var android = true;
     }
     else {
         var ws = new WebSocket('ws://10.0.2.2:9898/');
     }
-
-    // if (browser) {
-    //     var w = true;
-    // }
-    // else {
-    //     var b = true;
-    // }
-
-    // let canplay = w ? true : false;
 
     var w = false;
     var b = false;
@@ -708,6 +697,7 @@ function onDeviceReady() {
         tabPionSelectable = defineMeilleurCoupsPossible(joueur);
         actualizeSelectable();
         //TODO enregistrement dans la queue
+        ws.send(JSON.stringify({ datatype: 'queuejoin'}));
         //TODO lance une partie contre l'IA en attendant
     }
 
