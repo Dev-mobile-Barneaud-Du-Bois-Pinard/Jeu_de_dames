@@ -29,13 +29,6 @@ const gameSchema = new Schema({
 
 console.log('setup database');
 
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
 
 main().catch(err => console.log(err));
 
@@ -66,14 +59,6 @@ async function main() {
   wsServer.on("request", function (request) {
     const connection = request.accept(null, request.origin);
 
-    //Tableau des identifiants
-    var myLogs = [
-      ["coco58", "coco58pwd"],
-      ["superman78", "superman78pwd"],
-      ["toto", "totopwd"],
-      ["tata", "tatapwd"],
-    ];
-
     //Actions à la réception d'un message de la part du client
     connection.on("message", function (message) {
       if (JSON.parse(message.utf8Data).datatype == "conn") {
@@ -87,17 +72,16 @@ async function main() {
                 if (user.mdp == JSON.parse(message.utf8Data).pwd) {
                   valid = true;
                 }
-              } else {
+              } else { // login absent de la bdd, on inscrit le nouvel utilisateur
                 var userAdd = new User({login: JSON.parse(message.utf8Data).login, mdp: JSON.parse(message.utf8Data).pwd, nbVictoire: 0, nbDefaite :0});
                 userAdd.save();
                 valid = true;
               }
-                console.log('auth : ' + valid);
               }).clone();
-          } catch (err) { // login absent de la bdd
+          } catch (err) {
             console.log(err);
           }
-        console.log('auth final : ' + valid);
+        console.log('auth : ' + valid);
 
         if (valid == true) {
           //correspondance -> réponse positive
@@ -112,12 +96,14 @@ async function main() {
             })
           );
           if (queue[0].length == 1) {
-            // TODO: gérer être seul dans la file
+          // TODO: gérer être seul dans la file
           //   connection.send(
           //     JSON.stringify({ datatype: "gamestart", versus: "random" })
           //   );
           } else if (queue[0].length == 2) {
             // TODO: créer la game en BDD
+            
+
             queue[0][0].send(
               JSON.stringify({ datatype: "gamestart", versus: queue[1][1], player: 'w', gameID: gameID})
             );
