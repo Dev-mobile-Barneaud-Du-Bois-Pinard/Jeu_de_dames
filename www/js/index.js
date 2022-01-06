@@ -707,7 +707,7 @@ function onDeviceReady() {
         joueur = 'w';
         tabPionSelectable = defineMeilleurCoupsPossible(joueur);
         actualizeSelectable();
-        //TODO enregistrement dans la queue
+        ws.send(JSON.stringify({ datatype: 'queuejoin'}));
         //TODO lance une partie contre l'IA en attendant
     }
 

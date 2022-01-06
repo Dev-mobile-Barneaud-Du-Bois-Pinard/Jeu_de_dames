@@ -28,6 +28,10 @@ async function main() {
 
   await mongoose.connect('mongodb://localhost:27017/test');
   const User = mongoose.model('User', userSchema);
+  const Game = mongoose.model('Game', gameSchema);
+  Game.findOne().sort({ _id: -1 }).exec( function(err, post) {
+    console.log( post );
+  });
 
 }
 

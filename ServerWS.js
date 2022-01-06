@@ -36,6 +36,7 @@ async function main() {
 
   await mongoose.connect('mongodb://localhost:27017/test');
   const User = mongoose.model('User', userSchema);
+  const Game = mongoose.model('Game', gameSchema);
 
   // Création du server WebSocket qui utilise le serveur précédent
   const WebSocketServer = require("websocket").server;
@@ -81,52 +82,69 @@ async function main() {
           } catch (err) {
             console.log(err);
           }
-        console.log('auth : ' + valid);
+          console.log('auth : ' + valid);
 
-        if (valid == true) {
+          if (valid == true) {
           //correspondance -> réponse positive
           connections[0].push(connection);
           connections[1].push(JSON.parse(message.utf8Data).login);
-          queue[0].push(connection);
-          queue[1].push(JSON.parse(message.utf8Data).login);
           connection.send(
             JSON.stringify({
               datatype: "conn",
               identification: "bienvenue " + JSON.parse(message.utf8Data).login,
             })
           );
-          if (queue[0].length == 1) {
-          // TODO: gérer être seul dans la file
-          //   connection.send(
-          //     JSON.stringify({ datatype: "gamestart", versus: "random" })
-          //   );
-          } else if (queue[0].length == 2) {
-            // TODO: créer la game en BDD
-            
-
-            queue[0][0].send(
-              JSON.stringify({ datatype: "gamestart", versus: queue[1][1], player: 'w', gameID: gameID})
-            );
-            queue[0][1].send(
-              JSON.stringify({ datatype: "gamestart", versus: queue[1][0], player: 'b', gameID: gameID})
-            );
-            games[gameID][0] = gameID;
-            games[gameID][1] = queue[1][0];
-            games[gameID][2] = queue[1][1];
-            gameID++;
-            queue[0] = [];
-            queue[1] = [];
           }
-        } else {
-          //pas de correspondance -> réponse négative
-          connection.send(
-            JSON.stringify({
-              datatype: "conn",
-              identification: "identifiants invalides",
-            })
-          );
+        })(); // fin async
+    } else if (JSON.parse(message.utf8Data).datatype == "queuejoin") {
+      console.log('join');
+
+      queue[0].push(connection);
+      for (i=0; i<connections[0].length;i++){
+        if (connections[0][i] == connection){
+          console.log(connections[1][i]);
+          queue[1].push(connections[1][i]);
         }
-      })(); // fin async
+      }
+      console.log(queue[1]);
+      if (queue[0].length == 2){
+        console.log('queue pleine');
+
+          (async () => {
+            try {
+              console.log('try');
+              var lastGame = await Game.findOne().sort({ _id: -1 });
+              if (lastGame) {
+                gameID = lastGame.gameID +1;
+                console.log('true');
+              } else {
+                gameID = 0;
+                console.log('false');
+              }
+              console.log('game id : ' + gameID);
+
+              var gameAdd = new Game({gameID : gameID, status : "etat", board : [], player1Login : queue[1][0], player2Login : queue[1][1], player1color : 'w', player2color : 'b', currentPlayer : queue[1][0], start_time : Date.now(), end_time : null, playtime : 0});
+              console.log("nouvelle partie : " +gameAdd);
+              gameAdd.save();
+
+              queue[0][0].send(
+                JSON.stringify({ datatype: "gamestart", versus: queue[1][1], player: 'w', gameID: gameID})
+              );
+              queue[0][1].send(
+                JSON.stringify({ datatype: "gamestart", versus: queue[1][0], player: 'b', gameID: gameID})
+              );
+              games[gameID][0] = gameID;
+              games[gameID][1] = queue[1][0];
+              games[gameID][2] = queue[1][1];
+              gameID++;
+              queue[0] = [];
+              queue[1] = [];
+            } catch (err) {
+              console.log('alors ?');
+              console.log(err);
+            }
+          })();      
+        }
       } else if (JSON.parse(message.utf8Data).datatype == "gamestate") {
           for (i = 0; i <= connections.length; i++){
               if(connections[1][i] == games[JSON.parse(message.utf8Data).gameID][1]){
