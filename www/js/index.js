@@ -449,7 +449,8 @@ function onDeviceReady() {
                     tabCoupsPossible = [];
                     createDame(pos, lastPionSelected);
                     actualizePlateau();
-                    tour();
+                    if(ia) tourIA();
+                    else tour();
                 }
             }
             for (let i = 0; i < tabMangerPossible.length; i++) {
@@ -491,7 +492,8 @@ function onDeviceReady() {
                         }
                     }
                     actualizeSelection();
-                    tour();
+                    if(ia) tourIA();
+                    else tour();
                 }
             }
         }
@@ -676,6 +678,36 @@ function onDeviceReady() {
         } 
     }
 
+    function tourIA(){
+        lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
+        if (countPion('b') == 0) {
+            msggameover.innerHTML = 'Victoire du joueur blanc';
+            gameover.style.display = 'block';
+            tabPionSelectable = [];
+        } else if (countPion('w') == 0) {
+            msggameover.innerHTML = 'Victoire du joueur noir';
+            gameover.style.display = 'block';
+            tabPionSelectable = [];
+        } else {
+            if (!rafle) {
+                joueur = (joueur == 'w' ? 'b' : 'w');
+                tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+            }
+            actualizeSelectable();
+            if (tabPionSelectable.length == 0) {
+                if (joueur == 'w') {
+                    msggameover.innerHTML = 'Victoire du joueur noir';
+                    gameover.style.display = 'block';
+                    tabPionSelectable = [];
+                } else {
+                    msggameover.innerHTML = 'Victoire du joueur blanc';
+                    gameover.style.display = 'block';
+                    tabPionSelectable = [];
+                }
+            } else if (joueur == 'b' && ia) setTimeout(joueurRandom, 500);
+        }
+    }
+
     function countPion(couleur='w'){
         let res = 0;
         for (let y = 0; y < tabCase.length; y++) {
@@ -695,9 +727,15 @@ function onDeviceReady() {
         ia = random;
         joueur = 'w';
         tabPionSelectable = defineMeilleurCoupsPossible(joueur);
-        actualizeSelectable();
         //TODO enregistrement dans la queue
-        ws.send(JSON.stringify({ datatype: 'queuejoin'}));
+        console.log(ia);
+        if(ia==false){
+            console.warn("cool");
+            ws.send(JSON.stringify({ datatype: 'queuejoin'}));
+            ia=true;
+        }
+        canplay=true;
+        actualizeSelectable();
         //TODO lance une partie contre l'IA en attendant
     }
 
@@ -728,13 +766,15 @@ function onDeviceReady() {
     }
 
     function startrandom(){
-        startfrommenu(true);
-    }
-
-    function startfrommenu(random){
         menu.style.animation = 'out 1s';
         setTimeout(function(){menu.style.display = 'none'},1000);
-        start(random);
+        start(true);
+    }
+
+    function startfrommenu(){
+        menu.style.animation = 'out 1s';
+        setTimeout(function(){menu.style.display = 'none'},1000);
+        start(false);
     }
 
     function displaymenu(){
@@ -781,13 +821,23 @@ function onDeviceReady() {
             if(JSON.parse(e.data).identification.charAt(0)=='b') hidemenuconnection();
         }
         else if (JSON.parse(e.data).datatype == 'gamestart') {
+            console.log("gamestart");
+            ia=false;
             gameID = JSON.parse(e.data).gameID;
+            clear();
+            initTableau();
+            initPion();
+            ia = false;
+            joueur = 'w';
+            tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+            actualizeSelectable();
             if(JSON.parse(e.data).player == 'w'){
                 w = true;
                 canplay = true;
             }
             else{
                 b = true;
+                canplay = false;
             }
         }
         else if (JSON.parse(e.data).datatype == 'gamestate') {
