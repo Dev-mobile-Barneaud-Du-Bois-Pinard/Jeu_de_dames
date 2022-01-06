@@ -27,6 +27,8 @@ function onDeviceReady() {
 
     var gameover = document.getElementById('gameover');
     var msggameover = document.getElementById('msg-gameover');
+    var information = document.getElementById('information');
+    var msginformation = document.getElementById('msg-information');
     var btnmenu = document.getElementById('retourmenu');
     btnmenu.onclick = displaymenu;
     var btnrejouer = document.getElementById('restart');
@@ -449,7 +451,8 @@ function onDeviceReady() {
                     tabCoupsPossible = [];
                     createDame(pos, lastPionSelected);
                     actualizePlateau();
-                    tour();
+                    if(ia) tourIA();
+                    else tour();
                 }
             }
             for (let i = 0; i < tabMangerPossible.length; i++) {
@@ -491,7 +494,8 @@ function onDeviceReady() {
                         }
                     }
                     actualizeSelection();
-                    tour();
+                    if(ia) tourIA();
+                    else tour();
                 }
             }
         }
@@ -676,6 +680,36 @@ function onDeviceReady() {
         } 
     }
 
+    function tourIA(){
+        lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
+        if (countPion('b') == 0) {
+            msggameover.innerHTML = 'Victoire du joueur blanc';
+            gameover.style.display = 'block';
+            tabPionSelectable = [];
+        } else if (countPion('w') == 0) {
+            msggameover.innerHTML = 'Victoire du joueur noir';
+            gameover.style.display = 'block';
+            tabPionSelectable = [];
+        } else {
+            if (!rafle) {
+                joueur = (joueur == 'w' ? 'b' : 'w');
+                tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+            }
+            actualizeSelectable();
+            if (tabPionSelectable.length == 0) {
+                if (joueur == 'w') {
+                    msggameover.innerHTML = 'Victoire du joueur noir';
+                    gameover.style.display = 'block';
+                    tabPionSelectable = [];
+                } else {
+                    msggameover.innerHTML = 'Victoire du joueur blanc';
+                    gameover.style.display = 'block';
+                    tabPionSelectable = [];
+                }
+            } else if (joueur == 'b' && ia) setTimeout(joueurRandom, 500);
+        }
+    }
+
     function countPion(couleur='w'){
         let res = 0;
         for (let y = 0; y < tabCase.length; y++) {
@@ -686,19 +720,35 @@ function onDeviceReady() {
         return res;
     }
 
+    function displayMessage(message){
+        information.style.animation = 'in 1s';
+        msginformation.innerHTML = message;
+        information.style.display = 'block';
+        setTimeout(function(){
+            information.style.animation = 'out 1s';
+            setTimeout(function(){information.style.display = 'none'},900);
+        },3000)
+    }
+
     /**
      * Appel les fonctions d'initialisation et lance le jeu
      */
     function start(random = false) {
-        initTableau();
-        initPion();
         ia = random;
         joueur = 'w';
-        tabPionSelectable = defineMeilleurCoupsPossible(joueur);
-        actualizeSelectable();
         //TODO enregistrement dans la queue
-        ws.send(JSON.stringify({ datatype: 'queuejoin'}));
-        //TODO lance une partie contre l'IA en attendant
+        if(ia==false){
+            setTimeout(function(){
+                displayMessage('Partie d\'attente vs joueur random');
+            },500);
+            ws.send(JSON.stringify({ datatype: 'queuejoin'}));
+            ia=true;
+        }
+        initTableau();
+        initPion();
+        tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+        canplay=true;
+        actualizeSelectable();
     }
 
     function clear() {
@@ -728,13 +778,15 @@ function onDeviceReady() {
     }
 
     function startrandom(){
-        startfrommenu(true);
-    }
-
-    function startfrommenu(random){
         menu.style.animation = 'out 1s';
         setTimeout(function(){menu.style.display = 'none'},1000);
-        start(random);
+        start(true);
+    }
+
+    function startfrommenu(){
+        menu.style.animation = 'out 1s';
+        setTimeout(function(){menu.style.display = 'none'},1000);
+        start(false);
     }
 
     function displaymenu(){
@@ -781,14 +833,33 @@ function onDeviceReady() {
             if(JSON.parse(e.data).identification.charAt(0)=='b') hidemenuconnection();
         }
         else if (JSON.parse(e.data).datatype == 'gamestart') {
-            gameID = JSON.parse(e.data).gameID;
-            if(JSON.parse(e.data).player == 'w'){
-                w = true;
-                canplay = true;
-            }
-            else{
-                b = true;
-            }
+            setTimeout(function(){
+                displayMessage('Un adversaire a été trouvé, la partie commence dans 5 secondes.');
+            },1000);
+            setTimeout(function(){
+                ia=false;
+                gameID = JSON.parse(e.data).gameID;
+                clear();
+            },3500);
+            setTimeout(function(){
+                initTableau();
+                initPion();
+                ia = false;
+                joueur = 'w';
+                tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+                actualizeSelectable();
+                if(JSON.parse(e.data).player == 'w'){
+                    w = true;
+                    b = false;
+                    canplay = true;
+                }
+                else{
+                    b = true;
+                    w = false;
+                    canplay = false;
+                }
+                displayMessage('Vous jouer contre '/*+ nom joueur*/ +'. Vous êtes le joueur ' + (w? 'blanc' : 'noir'))  //TODO ajouter le nom de l'adversaire
+            },6000);
         }
         else if (JSON.parse(e.data).datatype == 'gamestate') {
             joueur = JSON.parse(e.data).player;
