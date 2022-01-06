@@ -134,6 +134,7 @@ body {
 
     #menu{
         position: absolute;
+        display: none;
         font-size: 2em;
         font-family : Pixel4; 
         animation : in 1s;
@@ -160,6 +161,54 @@ body {
     .btn-menu:active{
         background-color: #493D31;
         color:#FFEECF;
+    }
+
+    #menuconnection{
+        position: absolute;
+        font-size: 1.5em;
+        font-family : Pixel4; 
+        animation : in 1s;
+        margin-left: 75px;
+        margin-top: 190px;
+        width:450px;
+        text-align: center;
+        z-index:4;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+    }
+
+    .lbl-connection{
+        margin-top: 10px;
+        width: 300px;
+    }
+
+    .input-connection{
+        margin-top: 10px;
+        width: 300px;
+        font-family : Pixel4; 
+        font-size: 1.5em;
+        background-color: #493D31;
+        color:#FFEECF;
+    }
+    
+    .btn-connection{
+        margin-top: 10px;
+        margin-bottom: 10px;
+        width: 300px;
+        background-color: #493D31;
+        color:#FFEECF;
+        font-family : Pixel4; 
+        border: solid 4px #493D31;
+    }
+    
+    .btn-connection:hover{
+        background-color: black;
+    }
+    
+    .btn-connection:active{
+        background-color: #FFEECF;
+        color:#493D31;
     }
 }
 
@@ -236,6 +285,7 @@ body {
 
       #menu{
         position: absolute;
+        display: none;
         animation : in 1s;
         width:340px;
         text-align: center;
@@ -260,6 +310,54 @@ body {
     .btn-menu:active{
         background-color: #493D31;
         color:#FFEECF;
+    }
+
+    #menuconnection{
+        position: absolute;
+        font-size: 1.5em;
+        font-family : Pixel4; 
+        animation : in 1s;
+        margin-left: 45px;
+        margin-top: 60px;
+        width:250px;
+        text-align: center;
+        z-index:4;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+    }
+
+    .lbl-connection{
+        margin-top: 10px;
+        width: 300px;
+    }
+
+    .input-connection{
+        margin-top: 10px;
+        width: 200px;
+        font-family : Pixel4; 
+        font-size: 1.5em;
+        background-color: #493D31;
+        color:#FFEECF;
+    }
+    
+    .btn-connection{
+        margin-top: 10px;
+        margin-bottom: 10px;
+        width: 200px;
+        background-color: #493D31;
+        color:#FFEECF;
+        font-family : Pixel4; 
+        border: solid 4px #493D31;
+    }
+    
+    .btn-connection:hover{
+        background-color: black;
+    }
+    
+    .btn-connection:active{
+        background-color: #FFEECF;
+        color:#493D31;
     }
 }
 

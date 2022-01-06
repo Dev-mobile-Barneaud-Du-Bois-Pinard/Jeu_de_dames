@@ -12,16 +12,7 @@
     </head>
     <body>
         <h1>JEU DE DAMES</h1>
-        <form id="myLoginForm">
-            <label for="login">Login:</label><br>
-            <input type="text" id="login" name="login" value=""><br>
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="pasword" value=""><br><br>
-            <input type="button" value="Connect" id="mySubmit">
-            <div id="inputMessage">
-
-            </div>
-        </form>
+        
         <script src="cordova.js"></script>
         <script src="js/index.js"></script>
         <div id='main'>
@@ -31,11 +22,24 @@
                 <button class="btn-gameover" id="restart"> Rejouer </button>
             </div>
             <div id="menu">
-                <button class="btn-menu" id="start"> Jouer</button>
+                <button class="btn-menu" id="start"> Jouer </button>
                 <button class="btn-menu" id="startvsrandpm"> Jouer VS IA </button>
                 <button class="btn-menu" id="leaderboard"> Classement </button>
                 <button class="btn-menu" id="rules"> Règles </button>
             </div> 
+            <div id="menuconnection">
+                <form id="myLoginForm">
+                    <label class="lbl-connection" for="login">Login</label><br>
+                    <input class="input-connection" type="text" id="login" name="login" value=""><br>
+                    <label class="lbl-connection" for="password">Password</label><br>
+                    <input class="input-connection" type="password" id="password" name="pasword" value=""><br><br>
+                    <input class="btn-connection" type="button" value="Connection" id="mySubmit">
+                    <div id="inputMessage">
+        
+                    </div>
+                </form>
+            </div>
+            
         </div>
     </body>
 </html>

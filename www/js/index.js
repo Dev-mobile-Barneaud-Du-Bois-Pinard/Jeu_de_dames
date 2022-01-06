@@ -39,11 +39,12 @@ function onDeviceReady() {
     var gameover = document.getElementById('gameover');
     var msggameover = document.getElementById('msg-gameover');
     var btnmenu = document.getElementById('retourmenu');
-    btnmenu.onclick = menu;
+    btnmenu.onclick = displaymenu;
     var btnrejouer = document.getElementById('restart');
     btnrejouer.onclick = restart;
 
     var menu = document.getElementById('menu');
+    var menuconnection = document.getElementById('menuconnection');
     var btnstart = document.getElementById('start');
     btnstart.onclick = startfrommenu;
     var btnstartrandom = document.getElementById('startvsrandpm');
@@ -719,6 +720,8 @@ function onDeviceReady() {
                 }
             }
         }
+        tabCase = [];
+        lastTabCase = [];
         tabCoupsPossible = [];
         lastTabCoupsPossible = [];
         tabMangerPossible = [];
@@ -728,7 +731,7 @@ function onDeviceReady() {
     }
     
     function restart() {
-        gameover.style.animation = 'out 1s'
+        gameover.style.animation = 'out 1s';
         setTimeout(function(){gameover.style.display = 'none'},1000);
         clear();
         start(ia);
@@ -739,15 +742,16 @@ function onDeviceReady() {
     }
 
     function startfrommenu(random){
-        menu.style.animation = 'out 1s'
+        menu.style.animation = 'out 1s';
         setTimeout(function(){menu.style.display = 'none'},1000);
         start(random);
     }
 
-    function menu(){
-        gameover.style.animation = 'out 1s'
+    function displaymenu(){
+        gameover.style.animation = 'out 1s';
         setTimeout(function(){gameover.style.display = 'none'},1000);
         clear();
+        menu.style.animation = 'in 1s';
         menu.style.display='block';
     }
 
@@ -759,6 +763,13 @@ function onDeviceReady() {
     function leaderboard(){
         //TODO affichage classement
         console.log('classement');
+    }
+
+    function hidemenuconnection(){
+        menuconnection.style.animation = 'out 1s';
+        setTimeout(function(){menuconnection.style.display = 'none'},1000);
+        menu.style.animation = 'in 1s';
+        menu.style.display='block';
     }
 
     function joueurRandom() {
@@ -776,6 +787,8 @@ function onDeviceReady() {
         console.log('réception de : ' + e.data)
         if (JSON.parse(e.data).datatype == 'conn') {
             document.getElementById('inputMessage').innerHTML = JSON.parse(e.data).identification;
+            console.log(JSON.parse(e.data).identification.charAt(0));
+            if(JSON.parse(e.data).identification.charAt(0)=='b') hidemenuconnection();
         }
         else if (JSON.parse(e.data).datatype == 'gamestart') {
             gameID = JSON.parse(e.data).gameID;
