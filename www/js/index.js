@@ -27,6 +27,8 @@ function onDeviceReady() {
 
     var gameover = document.getElementById('gameover');
     var msggameover = document.getElementById('msg-gameover');
+    var information = document.getElementById('information');
+    var msginformation = document.getElementById('msg-information');
     var btnmenu = document.getElementById('retourmenu');
     btnmenu.onclick = displaymenu;
     var btnrejouer = document.getElementById('restart');
@@ -718,25 +720,35 @@ function onDeviceReady() {
         return res;
     }
 
+    function displayMessage(message){
+        information.style.animation = 'in 1s';
+        msginformation.innerHTML = message;
+        information.style.display = 'block';
+        setTimeout(function(){
+            information.style.animation = 'out 1s';
+            setTimeout(function(){information.style.display = 'none'},900);
+        },3000)
+    }
+
     /**
      * Appel les fonctions d'initialisation et lance le jeu
      */
     function start(random = false) {
-        initTableau();
-        initPion();
         ia = random;
         joueur = 'w';
-        tabPionSelectable = defineMeilleurCoupsPossible(joueur);
         //TODO enregistrement dans la queue
-        console.log(ia);
         if(ia==false){
-            console.warn("cool");
+            setTimeout(function(){
+                displayMessage('Partie d\'attente vs joueur random');
+            },500);
             ws.send(JSON.stringify({ datatype: 'queuejoin'}));
             ia=true;
         }
+        initTableau();
+        initPion();
+        tabPionSelectable = defineMeilleurCoupsPossible(joueur);
         canplay=true;
         actualizeSelectable();
-        //TODO lance une partie contre l'IA en attendant
     }
 
     function clear() {
@@ -821,24 +833,33 @@ function onDeviceReady() {
             if(JSON.parse(e.data).identification.charAt(0)=='b') hidemenuconnection();
         }
         else if (JSON.parse(e.data).datatype == 'gamestart') {
-            console.log("gamestart");
-            ia=false;
-            gameID = JSON.parse(e.data).gameID;
-            clear();
-            initTableau();
-            initPion();
-            ia = false;
-            joueur = 'w';
-            tabPionSelectable = defineMeilleurCoupsPossible(joueur);
-            actualizeSelectable();
-            if(JSON.parse(e.data).player == 'w'){
-                w = true;
-                canplay = true;
-            }
-            else{
-                b = true;
-                canplay = false;
-            }
+            setTimeout(function(){
+                displayMessage('Un adversaire a été trouvé, la partie commence dans 5 secondes.');
+            },1000);
+            setTimeout(function(){
+                ia=false;
+                gameID = JSON.parse(e.data).gameID;
+                clear();
+            },3500);
+            setTimeout(function(){
+                initTableau();
+                initPion();
+                ia = false;
+                joueur = 'w';
+                tabPionSelectable = defineMeilleurCoupsPossible(joueur);
+                actualizeSelectable();
+                if(JSON.parse(e.data).player == 'w'){
+                    w = true;
+                    b = false;
+                    canplay = true;
+                }
+                else{
+                    b = true;
+                    w = false;
+                    canplay = false;
+                }
+                displayMessage('Vous jouer contre '/*+ nom joueur*/ +'. Vous êtes le joueur ' + (w? 'blanc' : 'noir'))  //TODO ajouter le nom de l'adversaire
+            },6000);
         }
         else if (JSON.parse(e.data).datatype == 'gamestate') {
             joueur = JSON.parse(e.data).player;
