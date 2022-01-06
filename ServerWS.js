@@ -123,7 +123,7 @@ async function main() {
               }
               console.log('game id : ' + gameID);
 
-              var gameAdd = new Game({gameID : gameID, status : "etat", board : [], player1Login : queue[1][0], player2Login : queue[1][1], player1color : 'w', player2color : 'b', currentPlayer : queue[1][0], start_time : Date.now(), end_time : null, playtime : 0});
+              var gameAdd = new Game({gameID : gameID, status : "live", board : [], player1Login : queue[1][0], player2Login : queue[1][1], player1color : 'w', player2color : 'b', currentPlayer : queue[1][0], start_time : Date.now(), end_time : null, playtime : 0});
               console.log("nouvelle partie : " +gameAdd);
               gameAdd.save();
 
@@ -133,28 +133,81 @@ async function main() {
               queue[0][1].send(
                 JSON.stringify({ datatype: "gamestart", versus: queue[1][0], player: 'b', gameID: gameID})
               );
-              games[gameID][0] = gameID;
-              games[gameID][1] = queue[1][0];
-              games[gameID][2] = queue[1][1];
-              gameID++;
+              console.log('ici ' + gameID);
+              // games[gameID][0] = gameID;
+              // games[gameID][1] = queue[1][0];
+              // games[gameID][2] = queue[1][1];
+              // gameID++;
               queue[0] = [];
               queue[1] = [];
             } catch (err) {
-              console.log('alors ?');
+              console.warn('ERROR');
               console.log(err);
             }
           })();      
         }
       } else if (JSON.parse(message.utf8Data).datatype == "gamestate") {
+        (async () => {
+          try {
+            var currentGame = await Game.findOne({gameID : JSON.parse(message.utf8Data).gameID});
+            currentGame.board = JSON.parse(message.utf8Data).plateau;
+            currentGame.save();
+            var player1 = currentGame.player1Login;
+            var player2 = currentGame.player2Login;
+
+
           for (i = 0; i <= connections.length; i++){
-              if(connections[1][i] == games[JSON.parse(message.utf8Data).gameID][1]){
+              if(connections[1][i] == player1){
                   connections[0][i].send(message.utf8Data);
               }
-              else if(connections[1][i] == games[JSON.parse(message.utf8Data).gameID][2]){
+              else if(connections[1][i] == player2){
                   connections[0][i].send(message.utf8Data);
               }
           }
+
+        } catch (err) {
+          console.log(err);
+        }
+
+      })();
           // TODO: gestion de gameend
+      }
+      else if (JSON.parse(message.utf8Data).datatype == "gameend") {
+        (async () => {
+          try {
+            var currentGame = await Game.findOne({gameID : JSON.parse(message.utf8Data).gameID});
+            currentGame.end_time = Date.now(); 
+            currentGame.status = "finished";
+            currentGame.save();
+            if (currentGame.player1Color == JSON.parse(message.utf8Data).winner) {
+              var winner = await User.findOne({login : currentGame.player1Login});
+            } else {
+              var winner = await User.findOne({login : currentGame.player2Login});
+            }
+            winner.nbVictoire += 1;
+            winner.save();
+            if (winner.login == currentGame.player1Login) {
+              var loser = await User.findOne({login : currentGame.player2Login});
+              loser.nbDefaite += 1;
+            } else {
+              var loser = await User.findOne({login : currentGame.player1Login});
+              loser.nbDefaite += 1;
+            }
+            loser.save();
+            var player1 = currentGame.player1Login;
+            var player2 = currentGame.player2Login;
+            for (i = 0; i <= connections.length; i++){
+                if(connections[1][i] == player1){
+                    connections[0][i].send(message.utf8Data);
+                }
+                else if(connections[1][i] == player2){
+                    connections[0][i].send(message.utf8Data);
+                }
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        })();
       }
     });
 

@@ -666,23 +666,23 @@ function onDeviceReady() {
             msggameover.innerHTML = 'Victoire du joueur blanc';
             gameover.style.display = 'block';
             tabPionSelectable = [];
-            //TODO send message win
+            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "w"}));
         }else if(countPion('w')==0){
             msggameover.innerHTML = 'Victoire du joueur noir';
             gameover.style.display = 'block';
             tabPionSelectable = [];
-            //TODO send message win
+            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "b"}));
         }else if (tabPionSelectable.length == 0) {
             if (joueur == 'w') {
                 msggameover.innerHTML = 'Victoire du joueur noir';
                 gameover.style.display = 'block';
                 tabPionSelectable = [];
-                //TODO send message win
+                ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "b"}));
             } else {
                 msggameover.innerHTML = 'Victoire du joueur blanc';
                 gameover.style.display = 'block';
                 tabPionSelectable = [];
-                //TODO send message win
+                ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "w"}));
             }
         } 
     }
@@ -821,6 +821,19 @@ function onDeviceReady() {
             lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
             tabPionSelectable = defineMeilleurCoupsPossible(JSON.parse(e.data).player);
             actualizeSelectable();
+        }
+        else if (JSON.parse(e.data).datatype == 'gameend') {
+            console.log(JSON.parse(e.data))
+            if (JSON.parse(e.data).winner == "w"){
+                msggameover.innerHTML = 'Victoire du joueur blanc';
+                gameover.style.display = 'block';
+                tabPionSelectable = [];
+            }
+            else{
+                msggameover.innerHTML = 'Victoire du joueur noir';
+                gameover.style.display = 'block';
+                tabPionSelectable = [];
+            }
         }
     };
 }
