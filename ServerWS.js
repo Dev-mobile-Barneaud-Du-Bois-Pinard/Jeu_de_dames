@@ -126,13 +126,7 @@ async function main() {
             queue[1].push(connections[1][i]);
           }
         }
-        if (queue[0].length == 1) {
-          // TODO: gérer être seul dans la file
-          //   connection.send(
-          //     JSON.stringify({ datatype: "gamestart", versus: "random" })
-          //   );
-        }
-        else if (queue[0].length == 2){
+        if (queue[0].length == 2){
           // s'il y a 2 clients dans la queue on crée une game les opposant
           // TODO: créer la game en BDD
           // on peut ici choisir que la couleur est définie aléatoirement
@@ -171,7 +165,7 @@ async function main() {
                 connections[0][i].send(message.utf8Data);
             }
         }
-    }
+      }
     });
 
     connection.on("close", function (reasonCode, description) {
