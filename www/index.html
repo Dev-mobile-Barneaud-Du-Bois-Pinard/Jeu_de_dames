@@ -24,6 +24,18 @@
         </form>
         <script src="cordova.js"></script>
         <script src="js/index.js"></script>
-        <div id='main'></div>
+        <div id='main'>
+            <div id="gameover">
+                <h2 id="msg-gameover">Victoire du joueur blanc</h2>
+                <button class="btn-gameover" id="retourmenu"> Menu </button>
+                <button class="btn-gameover" id="restart"> Rejouer </button>
+            </div>
+            <div id="menu">
+                <button class="btn-menu" id="start"> Jouer</button>
+                <button class="btn-menu" id="startvsrandpm"> Jouer VS IA </button>
+                <button class="btn-menu" id="leaderboard"> Classement </button>
+                <button class="btn-menu" id="rules"> Règles </button>
+            </div> 
+        </div>
     </body>
 </html>

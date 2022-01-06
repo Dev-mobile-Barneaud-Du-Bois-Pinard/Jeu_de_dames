@@ -36,6 +36,23 @@ function onDeviceReady() {
         ws.send(JSON.stringify({ datatype: 'conn', login: document.getElementById('login').value, pwd: document.getElementById('password').value }))
     }
 
+    var gameover = document.getElementById('gameover');
+    var msggameover = document.getElementById('msg-gameover');
+    var btnmenu = document.getElementById('retourmenu');
+    btnmenu.onclick = menu;
+    var btnrejouer = document.getElementById('restart');
+    btnrejouer.onclick = restart;
+
+    var menu = document.getElementById('menu');
+    var btnstart = document.getElementById('start');
+    btnstart.onclick = startfrommenu;
+    var btnstartrandom = document.getElementById('startvsrandpm');
+    btnstartrandom.onclick = startrandom;
+    var btnleaderboard = document.getElementById('leaderboard');
+    btnleaderboard.onclick = leaderboard;
+    var btnrules = document.getElementById('rules');
+    btnrules.onclick = rules;
+
     var smartphone = false; 
     if(window.screen.width<600) smartphone = true;
     /**
@@ -111,14 +128,9 @@ function onDeviceReady() {
     var joueur;
 
     /**
-     * Nombre de pion du joueur blanc
+    * true si la partie se joue contre un joueur random, false sinon
      */
-    var countW = 20;
-
-    /**
-     * Nombre de pion du joueur noir
-     */
-    var countB = 20;
+    var ia = false;
 
     /**
      * Classe position
@@ -472,9 +484,6 @@ function onDeviceReady() {
                         }
                         if ((tabCase[y0][x0].charAt(0) == 'w' && joueur == 'b') || (tabCase[y0][x0].charAt(0) == 'b' && joueur == 'w')) {
                             tabCase[y0][x0] = 'empty';
-                            if (tabCase[y0][x0].charAt(1) == 'w') countW--;
-                            else if (tabCase[y0][x0].charAt(1) == 'b') countB--;
-                            console.log("white : " + countW, "black : " + countB)
                         }
                     }
                     lastTabMangerPossible = JSON.parse(JSON.stringify(tabMangerPossible));
@@ -628,11 +637,7 @@ function onDeviceReady() {
      * actualize tabPionSelectable avec le nouveau joueur actif et appel la fonction actualizeSelectable.
      */
     function tour() {
-        if (countB == 0) {
-            console.log('white a gagné')
-        } else if (countW == 0) {
-            console.log('black a gagné')
-        } else if (!rafle) {
+        if (!rafle) {
             console.log('ICI joueur = ' + joueur);
             lastPionSelected = pionSelected;
             pionSelected = undefined;
@@ -655,21 +660,117 @@ function onDeviceReady() {
             console.log('on va envoyer : ' + JSON.stringify({ player: joueur, lastplayer: lastjoueur, plateau: tabCase }))
             ws.send(JSON.stringify({ datatype: 'gamestate', gameID: gameID, player: joueur, lastplayer: lastjoueur, plateau: tabCase }));
         }
+
+        if(countPion('b')==0){
+            msggameover.innerHTML = 'Victoire du joueur blanc';
+            gameover.style.display = 'block';
+            tabPionSelectable = [];
+            //TODO send message win
+        }else if(countPion('w')==0){
+            msggameover.innerHTML = 'Victoire du joueur noir';
+            gameover.style.display = 'block';
+            tabPionSelectable = [];
+            //TODO send message win
+        }else if (tabPionSelectable.length == 0) {
+            if (joueur == 'w') {
+                msggameover.innerHTML = 'Victoire du joueur noir';
+                gameover.style.display = 'block';
+                tabPionSelectable = [];
+                //TODO send message win
+            } else {
+                msggameover.innerHTML = 'Victoire du joueur blanc';
+                gameover.style.display = 'block';
+                tabPionSelectable = [];
+                //TODO send message win
+            }
+        } 
+    }
+
+    function countPion(couleur='w'){
+        let res = 0;
+        for (let y = 0; y < tabCase.length; y++) {
+            for (let x = 0; x < tabCase[y].length; x++) {
+                if(tabCase[y][x].charAt(0)==couleur) res++;
+            }
+        }
+        return res;
     }
 
     /**
      * Appel les fonctions d'initialisation et lance le jeu
      */
-    function start() {
+    function start(random = false) {
         initTableau();
-        initPlateau();
         initPion();
+        ia = random;
         joueur = 'w';
         tabPionSelectable = defineMeilleurCoupsPossible(joueur);
         actualizeSelectable();
+        //TODO enregistrement dans la queue
+        //TODO lance une partie contre l'IA en attendant
     }
 
-    start();
+    function clear() {
+        for (let y = 0; y < tabCase.length; y++) {
+            for (let x = 0; x < tabCase[y].length; x++) {
+                if (tabCase[y][x] != 'empty' && tabCase[y][x] != 'null') {
+                    let pion = document.getElementById(tabCase[y][x]);
+                    if (pion != null) pion.remove();
+                }
+            }
+        }
+        tabCoupsPossible = [];
+        lastTabCoupsPossible = [];
+        tabMangerPossible = [];
+        lastTabMangerPossible = [];
+        tabPionSelectable = [];
+        lastTabPionSelectable = [];
+    }
+    
+    function restart() {
+        gameover.style.animation = 'out 1s'
+        setTimeout(function(){gameover.style.display = 'none'},1000);
+        clear();
+        start(ia);
+    }
+
+    function startrandom(){
+        startfrommenu(true);
+    }
+
+    function startfrommenu(random){
+        menu.style.animation = 'out 1s'
+        setTimeout(function(){menu.style.display = 'none'},1000);
+        start(random);
+    }
+
+    function menu(){
+        gameover.style.animation = 'out 1s'
+        setTimeout(function(){gameover.style.display = 'none'},1000);
+        clear();
+        menu.style.display='block';
+    }
+
+    function rules(){
+        //TODO affichage règles
+        console.log('règles');
+    }
+
+    function leaderboard(){
+        //TODO affichage classement
+        console.log('classement');
+    }
+
+    function joueurRandom() {
+        selectPion(tabPionSelectable[Math.floor(Math.random() * tabPionSelectable.length)]);
+        let id;
+        if (tabMangerPossible.length != 0) id = tabMangerPossible[Math.floor(Math.random() * tabMangerPossible.length)];
+        else id = tabCoupsPossible[Math.floor(Math.random() * tabCoupsPossible.length)];
+        pos = new Position(parseInt(id.charAt(0)), parseInt(id.charAt(1)));
+        setTimeout(moveTo, 500, pos);
+    }
+
+    initPlateau();
 
     ws.onmessage = function (e) { //Fonctions de réceptions de messages
         console.log('réception de : ' + e.data)

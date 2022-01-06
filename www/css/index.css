@@ -94,6 +94,73 @@ body {
         transition: margin 1s, opacity 1s;
         transition-delay: opacity 0.5;
     }
+    #msg-gameover{
+        margin-left: 25px;
+        width:542px;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+      }
+    
+    #gameover{
+        position: absolute;
+        display: none;
+        font-size: 2em;
+        margin-top: 180px;
+        font-family : Pixel4; 
+        animation : in 1s;
+        width:600px;
+        text-align: center;
+        z-index:4;
+    }
+    
+    .btn-gameover{
+        margin-top: 10px;
+        font-family : Pixel4; 
+        font-size: 1.5em;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+    }
+    
+    .btn-gameover:hover{
+        background-color: white;
+    }
+    
+    .btn-gameover:active{
+        background-color: #493D31;
+        color:#FFEECF;
+    }
+
+    #menu{
+        position: absolute;
+        font-size: 2em;
+        font-family : Pixel4; 
+        animation : in 1s;
+        width:600px;
+        text-align: center;
+        z-index:4;
+    }
+    
+    .btn-menu{
+        margin-top: 40px;
+        height:100px;
+        width: 480px;
+        font-family : Pixel4; 
+        font-size: 2em;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+    }
+    
+    .btn-menu:hover{
+        background-color: white;
+    }
+    
+    .btn-menu:active{
+        background-color: #493D31;
+        color:#FFEECF;
+    }
 }
 
 @media screen and (max-width:600px) {
@@ -129,7 +196,103 @@ body {
         transition: margin 1s, opacity 1s;
         transition-delay: opacity 0.5;
     }
+    #msg-gameover{
+        width:300px;
+        margin-left: 16px;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+      }
+    
+      #gameover{
+        position: absolute;
+        display: none;
+        font-size: 1.5em;
+        margin-top: 80px;
+        font-family : Pixel4; 
+        animation : in 1s;
+        width:332px;
+        text-align: center;
+        z-index:4;
+      }
+    
+      .btn-gameover{
+          margin-left: 5px;
+        font-family : Pixel4; 
+        font-size: 1em;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+      }
+    
+      .btn-gameover:hover{
+        background-color: white;
+      }
+    
+      .btn-gameover:active{
+        background-color: #493D31;
+        color:#FFEECF;
+      }
+
+      #menu{
+        position: absolute;
+        animation : in 1s;
+        width:340px;
+        text-align: center;
+        z-index:4;
+    }
+    
+    .btn-menu{
+        margin-top: 20px;
+        height:60px;
+        width: 200px;
+        font-family : Pixel4; 
+        font-size: 1.5em;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+    }
+    
+    .btn-menu:hover{
+        background-color: white;
+    }
+    
+    .btn-menu:active{
+        background-color: #493D31;
+        color:#FFEECF;
+    }
 }
+
+@font-face {
+    font-family: Pixel4;
+    src: url(PixelNES.otf);
+  }
+
+  
+
+
+  
+
+
+  @keyframes in {
+    0% {
+      opacity: 0;
+      transform : translateY(-100px);
+    }  
+    100% { 
+      opacity: 1;
+    }
+  }
+
+  @keyframes out {
+    0% {
+      opacity: 1;
+    }  
+    100% { 
+      opacity: 0;
+      transform : translateY(100px);
+    }
+  }
 
 
 
