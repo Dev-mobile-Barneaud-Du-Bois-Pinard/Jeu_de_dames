@@ -29,18 +29,6 @@ async function main() {
   await mongoose.connect('mongodb://localhost:27017/test');
   const User = mongoose.model('User', userSchema);
 
-
-  var authValide = false;
-  User.findOne({'login' : 'toto'}, 'mdp', function (err, user) {
-    if (err) return handleError(err);
-    // Prints "Space Ghost is a talk show host".
-    if (user.mdp = 'totopwd') {
-      authValide = true;
-    }
-    console.log('auth : ' + authValide);
-  });
-
-
 }
 
 
