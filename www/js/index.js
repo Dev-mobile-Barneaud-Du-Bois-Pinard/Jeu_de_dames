@@ -29,6 +29,8 @@ function onDeviceReady() {
     var msggameover = document.getElementById('msg-gameover');
     var information = document.getElementById('information');
     var msginformation = document.getElementById('msg-information');
+    var leaderboardmenu = document.getElementById('leaderboard');
+    var retourmenufromleader = document.getElementById('retourmenufromleader');
     var btnmenu = document.getElementById('retourmenu');
     btnmenu.onclick = displaymenu;
     var btnrejouer = document.getElementById('restart');
@@ -38,7 +40,7 @@ function onDeviceReady() {
     var menuconnection = document.getElementById('menuconnection');
     var btnstart = document.getElementById('start');
     btnstart.onclick = startfrommenu;
-    var btnstartrandom = document.getElementById('startvsrandpm');
+    var btnstartrandom = document.getElementById('startvsrandom');
     btnstartrandom.onclick = startrandom;
     var btnleaderboard = document.getElementById('leaderboard');
     btnleaderboard.onclick = leaderboard;
@@ -858,7 +860,7 @@ function onDeviceReady() {
                     w = false;
                     canplay = false;
                 }
-                displayMessage('Vous jouer contre '/*+ nom joueur*/ +'. Vous êtes le joueur ' + (w? 'blanc' : 'noir'))  //TODO ajouter le nom de l'adversaire
+                displayMessage('Vous jouez contre '/*+ nom joueur*/ +'. Vous êtes le joueur ' + (w? 'blanc' : 'noir'))  //TODO ajouter le nom de l'adversaire
             },6000);
         }
         else if (JSON.parse(e.data).datatype == 'gamestate') {
