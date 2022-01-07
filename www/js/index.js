@@ -21,7 +21,6 @@ function onDeviceReady() {
     };
 
     document.getElementById('mySubmit').onclick = function () {//Envoie des données du formulaire au click du bouton
-        console.log('on va envoyer : ' + JSON.stringify({ datatype: 'conn', login: document.getElementById('login').value, pwd: document.getElementById('password').value }))
         ws.send(JSON.stringify({ datatype: 'conn', login: document.getElementById('login').value, pwd: document.getElementById('password').value }))
     }
 
@@ -52,8 +51,8 @@ function onDeviceReady() {
     var btnleaderboard = document.getElementById('btn-leaderboard');
     btnleaderboard.onclick = leaderboard;
 
-    var smartphone = false; 
-    if(window.screen.width<600) smartphone = true;
+    var smartphone = false;
+    if (window.screen.width < 600) smartphone = true;
     /**
  * Tableau contenant une grille de l'état du tour actuel du jeu
  */
@@ -157,10 +156,10 @@ function onDeviceReady() {
     function createCase(pos = new Position) {
         let div = document.createElement('div');
         div.className = 'case';
-        if(smartphone){
+        if (smartphone) {
             div.style.marginTop = pos.y * 34 + 'px';
             div.style.marginLeft = pos.x * 34 + 'px';
-        }else{
+        } else {
             div.style.marginTop = pos.y * 60 + 'px';
             div.style.marginLeft = pos.x * 60 + 'px';
         }
@@ -181,10 +180,10 @@ function onDeviceReady() {
      */
     function createPion(pos = new Position, name = 'null') {
         let circle = document.createElement('div');
-        if(smartphone){
+        if (smartphone) {
             circle.style.marginTop = pos.y * 34 + 2 + 'px';
             circle.style.marginLeft = pos.x * 34 + 2 + 'px';
-        }else{
+        } else {
             circle.style.marginTop = pos.y * 60 + 5 + 'px';
             circle.style.marginLeft = pos.x * 60 + 5 + 'px';
         }
@@ -458,7 +457,7 @@ function onDeviceReady() {
                     tabCoupsPossible = [];
                     createDame(pos, lastPionSelected);
                     actualizePlateau();
-                    if(ia) tourIA();
+                    if (ia) tourIA();
                     else tour();
                 }
             }
@@ -501,7 +500,7 @@ function onDeviceReady() {
                         }
                     }
                     actualizeSelection();
-                    if(ia) tourIA();
+                    if (ia) tourIA();
                     else tour();
                 }
             }
@@ -558,7 +557,6 @@ function onDeviceReady() {
                             if (item.includes(namelastpion)) newDame = true;
                         })
                         if (newDame && tabCase[y][x].charAt(tabCase[y][x].length - 1) == 'd') {
-                            console.error("On créé un dame !");
                             let pion = document.getElementById(namelastpion);
                             pion.style.opacity = '0';
                             pion.remove();
@@ -567,10 +565,10 @@ function onDeviceReady() {
                         else if (tabCase[y][x] != 'empty') {
                             let pion = document.getElementById(tabCase[y][x]);
                             if (pion != null) {
-                                if(smartphone){
+                                if (smartphone) {
                                     pion.style.marginTop = y * 34 + 2 + 'px';
                                     pion.style.marginLeft = x * 34 + 2 + 'px';
-                                }else{
+                                } else {
                                     pion.style.marginTop = y * 60 + 5 + 'px';
                                     pion.style.marginLeft = x * 60 + 5 + 'px';
                                 }
@@ -639,38 +637,33 @@ function onDeviceReady() {
      */
     function tour() {
         if (!rafle) {
-            console.log('ICI joueur = ' + joueur);
             lastPionSelected = pionSelected;
             pionSelected = undefined;
             lastjoueur = joueur;
             joueur = (joueur == 'w' ? 'b' : 'w');
-            console.log('ET LA joueur = ' + joueur + ' ET lastjoueur = ' + lastjoueur);
             lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
             tabPionSelectable = defineMeilleurCoupsPossible(joueur);
             actualizeSelectable();
-            //Envoyer l'état du jeu au serveur à cette étape
-            console.log('on va envoyer : ' + JSON.stringify({ player: joueur, lastplayer: lastjoueur, plateau: tabCase }))
+            //On envoie l'état du jeu au serveur à cette étape
             ws.send(JSON.stringify({ datatype: 'gamestate', gameID: gameID, player: joueur, lastplayer: lastjoueur, plateau: tabCase }));
         } else {
             lastjoueur = joueur;
-            console.log('ET LA joueur = ' + joueur + ' ET lastjoueur = ' + lastjoueur);
             lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
             tabPionSelectable = defineMeilleurCoupsPossible(joueur);
             actualizeSelectable();
-            //Envoyer l'état du jeu au serveur à cette étape
-            console.log('on va envoyer : ' + JSON.stringify({ player: joueur, lastplayer: lastjoueur, plateau: tabCase }))
+            //On envoie l'état du jeu au serveur à cette étape
             ws.send(JSON.stringify({ datatype: 'gamestate', gameID: gameID, player: joueur, lastplayer: lastjoueur, plateau: tabCase }));
         }
 
-        if(countPion('b')==0) end('w');
-        else if(countPion('w')==0) end('b');
+        if (countPion('b') == 0) end('w');
+        else if (countPion('w') == 0) end('b');
         else if (tabPionSelectable.length == 0) {
             if (joueur == 'w') end('b');
             else end('w');
-        } 
+        }
     }
 
-    function tourIA(){
+    function tourIA() {
         lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
         if (countPion('b') == 0) endIA('w');
         else if (countPion('w') == 0) endIA('b');
@@ -687,24 +680,24 @@ function onDeviceReady() {
         }
     }
 
-    function countPion(couleur='w'){
+    function countPion(couleur = 'w') {
         let res = 0;
         for (let y = 0; y < tabCase.length; y++) {
             for (let x = 0; x < tabCase[y].length; x++) {
-                if(tabCase[y][x].charAt(0)==couleur) res++;
+                if (tabCase[y][x].charAt(0) == couleur) res++;
             }
         }
         return res;
     }
 
-    function displayMessage(message){
+    function displayMessage(message) {
         information.style.animation = 'in 1s';
         msginformation.innerHTML = message;
         information.style.display = 'block';
-        setTimeout(function(){
+        setTimeout(function () {
             information.style.animation = 'out 1s';
-            setTimeout(function(){information.style.display = 'none'},900);
-        },3000)
+            setTimeout(function () { information.style.display = 'none' }, 900);
+        }, 3000)
     }
 
     /**
@@ -713,20 +706,20 @@ function onDeviceReady() {
     function start(random = false) {
         ia = random;
         joueur = 'w';
-        if(ia){
-            abandonIA.style.animation="in 1s";
-            abandonIA.style.display="block";
-        }else{
-            setTimeout(function(){
+        if (ia) {
+            abandonIA.style.animation = "in 1s";
+            abandonIA.style.display = "block";
+        } else {
+            setTimeout(function () {
                 displayMessage('Partie d\'attente vs joueur random');
-            },500);
-            ws.send(JSON.stringify({ datatype: 'queuejoin'}));
-            ia=true;
+            }, 500);
+            ws.send(JSON.stringify({ datatype: 'queuejoin' }));
+            ia = true;
         }
         initTableau();
         initPion();
         tabPionSelectable = defineMeilleurCoupsPossible(joueur);
-        canplay=true;
+        canplay = true;
         actualizeSelectable();
     }
 
@@ -748,97 +741,96 @@ function onDeviceReady() {
         tabPionSelectable = [];
         lastTabPionSelectable = [];
     }
-    
+
     function restart() {
         gameover.style.animation = 'out 1s';
-        setTimeout(function(){gameover.style.display = 'none'},900);
+        setTimeout(function () { gameover.style.display = 'none' }, 900);
         clear();
         start(ia);
     }
 
-    function startrandom(){
+    function startrandom() {
         menu.style.animation = 'out 1s';
-        setTimeout(function(){menu.style.display = 'none'},900);
+        setTimeout(function () { menu.style.display = 'none' }, 900);
         start(true);
     }
 
-    function startfrommenu(){
+    function startfrommenu() {
         menu.style.animation = 'out 1s';
-        setTimeout(function(){menu.style.display = 'none'},900);
+        setTimeout(function () { menu.style.display = 'none' }, 900);
         start(false);
     }
 
-    function displaymenu(){
+    function displaymenu() {
         gameover.style.animation = 'out 1s';
-        setTimeout(function(){gameover.style.display = 'none'},900);
+        setTimeout(function () { gameover.style.display = 'none' }, 900);
         clear();
         menu.style.animation = 'in 1s';
-        menu.style.display='block';
+        menu.style.display = 'block';
     }
 
-    
 
-    function leaderboard(){
+
+    function leaderboard() {
         menu.style.animation = 'out 1s';
-        setTimeout(function(){menu.style.display = 'none'},900);
+        setTimeout(function () { menu.style.display = 'none' }, 900);
         //TODO affichage classement
-        ws.send(JSON.stringify({ datatype: 'leaderboard'}));
-        console.log('classement');
+        ws.send(JSON.stringify({ datatype: 'leaderboard' }));
     }
 
-    function menufromleaderboard(){
+    function menufromleaderboard() {
         leaderboardmenu.style.animation = 'out 1s';
-        setTimeout(function(){leaderboardmenu.style.display='none';},900);
-            menu.style.animation = 'in 1s';
-            menu.style.display='block';
+        setTimeout(function () { leaderboardmenu.style.display = 'none'; }, 900);
+        menu.style.animation = 'in 1s';
+        menu.style.display = 'block';
     }
 
-    function hidemenuconnection(){
-        setTimeout(function(){
+    function hidemenuconnection() {
+        setTimeout(function () {
             menuconnection.style.animation = 'out 1s';
-            setTimeout(function(){menuconnection.style.display = 'none'},900);
+            setTimeout(function () { menuconnection.style.display = 'none' }, 900);
             menu.style.animation = 'in 1s';
-            menu.style.display='block';
-        },1000)
+            menu.style.display = 'block';
+        }, 1000)
     }
 
-    function abandonner(){
-        if(w) end('b');
+    function abandonner() {
+        if (w) end('b');
         else end('w');
     }
 
-    function abandonnerIA(){
+    function abandonnerIA() {
         endIA('b');
     }
 
-    function endIA(j){
-        if(j=='w'){
+    function endIA(j) {
+        if (j == 'w') {
             msggameover.innerHTML = 'Victoire du joueur blanc';
             gameover.style.animation = "in 1s";
             gameover.style.display = 'block';
-        }else{
+        } else {
             msggameover.innerHTML = 'Victoire du joueur noir';
             gameover.style.animation = "in 1s";
             gameover.style.display = 'block';
         }
         abandonIA.style.animation = "out 1s";
-        setTimeout(function(){
+        setTimeout(function () {
             abandonIA.style.display = "none";
-        },900)
+        }, 900)
         tabPionSelectable = [];
     }
 
-    function end(j){
-        if(j=='w'){
+    function end(j) {
+        if (j == 'w') {
             msggameover.innerHTML = 'Victoire du joueur blanc';
             gameover.style.animation = "in 1s";
             gameover.style.display = 'block';
-            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "w"}));
-        }else{
+            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "w" }));
+        } else {
             msggameover.innerHTML = 'Victoire du joueur noir';
             gameover.style.animation = "in 1s";
             gameover.style.display = 'block';
-            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "b"}));
+            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "b" }));
         }
         tabPionSelectable = [];
     }
@@ -855,42 +847,40 @@ function onDeviceReady() {
     initPlateau();
 
     ws.onmessage = function (e) { //Fonctions de réceptions de messages
-        console.log('réception de : ' + e.data)
         if (JSON.parse(e.data).datatype == 'conn') {
             document.getElementById('inputMessage').innerHTML = JSON.parse(e.data).identification;
-            console.log(JSON.parse(e.data).identification.charAt(0));
-            if(JSON.parse(e.data).identification.charAt(0)=='b') hidemenuconnection();
+            if (JSON.parse(e.data).identification.charAt(0) == 'b') hidemenuconnection();
         }
         else if (JSON.parse(e.data).datatype == 'gamestart') {
-            setTimeout(function(){
+            setTimeout(function () {
                 displayMessage('Un adversaire a été trouvé, la partie commence dans 5 secondes.');
-            },900);
-            setTimeout(function(){
-                ia=false;
+            }, 900);
+            setTimeout(function () {
+                ia = false;
                 gameID = JSON.parse(e.data).gameID;
                 clear();
-            },3500);
-            setTimeout(function(){
+            }, 3500);
+            setTimeout(function () {
                 initTableau();
                 initPion();
                 ia = false;
                 joueur = 'w';
                 tabPionSelectable = defineMeilleurCoupsPossible(joueur);
                 actualizeSelectable();
-                if(JSON.parse(e.data).player == 'w'){
+                if (JSON.parse(e.data).player == 'w') {
                     w = true;
                     b = false;
                     canplay = true;
                 }
-                else{
+                else {
                     b = true;
                     w = false;
                     canplay = false;
                 }
-                displayMessage('Vous jouez contre ' + JSON.parse(e.data).versus + '. Vous êtes le joueur ' + (w? 'blanc' : 'noir'));
+                displayMessage('Vous jouez contre ' + JSON.parse(e.data).versus + '. Vous êtes le joueur ' + (w ? 'blanc' : 'noir'));
                 abandon.style.animation = "in 1s";
                 abandon.style.display = 'block';
-            },6000);
+            }, 6000);
         }
         else if (JSON.parse(e.data).datatype == 'gamestate') {
             joueur = JSON.parse(e.data).player;
@@ -906,8 +896,6 @@ function onDeviceReady() {
             if (lastjoueur == 'w' && b || lastjoueur == 'b' && w) {
                 lastTabCase = JSON.parse(JSON.stringify(tabCase));
                 tabCase = JSON.parse(e.data).plateau;
-                console.warn("Ca marche !");
-                console.log(tabCase);
                 actualizePlateau(lastjoueur);
             }
             lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
@@ -926,26 +914,25 @@ function onDeviceReady() {
             document.getElementById("nbV4").innerHTML = JSON.parse(e.data).nbV4;
             document.getElementById("nbV5").innerHTML = JSON.parse(e.data).nbV5;
             leaderboardmenu.style.animation = 'in 1s';
-            leaderboardmenu.style.display='block';
+            leaderboardmenu.style.display = 'block';
         }
         else if (JSON.parse(e.data).datatype == 'gameend') {
-            console.log(JSON.parse(e.data))
-            if (JSON.parse(e.data).winner == "w"){
+            if (JSON.parse(e.data).winner == "w") {
                 msggameover.innerHTML = 'Victoire du joueur blanc';
                 gameover.style.animation = "in 1s";
                 gameover.style.display = 'block';
                 tabPionSelectable = [];
             }
-            else{
+            else {
                 msggameover.innerHTML = 'Victoire du joueur noir';
                 gameover.style.animation = "in 1s";
                 gameover.style.display = 'block';
                 tabPionSelectable = [];
             }
             abandon.style.animation = "out 1s";
-            setTimeout(function(){
+            setTimeout(function () {
                 abandon.style.display = 'none';
-            },900);
+            }, 900);
         }
     };
 }
