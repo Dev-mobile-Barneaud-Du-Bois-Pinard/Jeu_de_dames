@@ -155,14 +155,12 @@ async function main() {
             currentGame.save();
             var player1 = currentGame.player1Login;
             var player2 = currentGame.player2Login;
-
-
-          for (i = 0; i <= connections.length; i++){
+          for (i = 0; i < connections[0].length; i++){
               if(connections[1][i] == player1){
-                  connections[0][i].send(message.utf8Data);
+                connections[0][i].send(message.utf8Data);
               }
               else if(connections[1][i] == player2){
-                  connections[0][i].send(message.utf8Data);
+                connections[0][i].send(message.utf8Data);
               }
           }
 
