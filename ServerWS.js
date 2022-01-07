@@ -13,6 +13,7 @@ const userSchema = new Schema({
   nbVictoire : Number,
   nbDefaite : Number
 });
+
 const gameSchema = new Schema({
   gameID : Number,
   status : String,
@@ -210,9 +211,10 @@ async function main() {
         })();
       }
     });
-
+    
     connection.on("close", function (reasonCode, description) {
       // TODO: gestion de la déconnexion en virant la co dans le tableau connections
+      // envoyer une gameend à l'adversaire en lui disant qu'il a gagné + la raison ?
       console.log(
         "Fermeture d'une connexion avec un code : " +
           reasonCode +
