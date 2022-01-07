@@ -65,13 +65,20 @@ async function main() {
     connection.on("message", function (message) {
       if (JSON.parse(message.utf8Data).datatype == "conn") {
         var valid = false; //variable servant à vérifier si les identifiants sont valides
-
+        var dejaCo = false;
         (async () => {
           try {
-            await User.findOne({'login' : JSON.parse(message.utf8Data).login}, 'mdp', function (err, user) {
+            await User.findOne({'login' : JSON.parse(message.utf8Data).login}, 'login mdp', function (err, user) {
               if (err) return handleError(err);
               if (user) {
                 if (user.mdp == JSON.parse(message.utf8Data).pwd) {
+                  if (connections[1].length >0) {
+                    if (connections[1].includes(user.login)) {
+                      dejaCo = true;
+                    } else {
+                      valid = true;
+                    }
+                  }
                   valid = true;
                 }
               } else { // login absent de la bdd, on inscrit le nouvel utilisateur
@@ -84,17 +91,32 @@ async function main() {
             console.log(err);
           }
           console.log('auth : ' + valid);
-
-          if (valid == true) {
+          if (valid && !dejaCo) {
           //correspondance -> réponse positive
-          connections[0].push(connection);
-          connections[1].push(JSON.parse(message.utf8Data).login);
-          connection.send(
-            JSON.stringify({
-              datatype: "conn",
-              identification: "bienvenue " + JSON.parse(message.utf8Data).login,
-            })
-          );
+            connections[0].push(connection);
+            connections[1].push(JSON.parse(message.utf8Data).login);
+            connection.send(
+              JSON.stringify({
+                datatype: "conn",
+                identification: "bienvenue " + JSON.parse(message.utf8Data).login
+              })
+            );
+          }  else if (valid && dejaCo) {
+            // user deja connecté
+            connection.send(
+              JSON.stringify({
+                datatype: "conn",
+                identification: "Utilisateur déjà connecté"
+              })
+            );
+          } else if (!valid) {
+            // mauvais logins
+            connection.send(
+              JSON.stringify({
+                datatype: "conn",
+                identification: "Identifiants incorrects "
+              })
+            );
           }
         })(); // fin async
     } else if (JSON.parse(message.utf8Data).datatype == "queuejoin") {
