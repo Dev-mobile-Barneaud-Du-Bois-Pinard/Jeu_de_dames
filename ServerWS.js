@@ -2,7 +2,7 @@ const http = require("http");
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const server = http.createServer();
-server.listen(9898); // On écoute sur le port 9898
+server.listen(9898);// On écoute sur le port 9898
 
 // Définition des modeles de BD
 const userSchema = new Schema({
@@ -34,7 +34,7 @@ async function main() {
   const User = mongoose.model('User', userSchema);
   const Game = mongoose.model('Game', gameSchema);
 
-  // Création du server WebSocket qui utilise le serveur précédent
+  //Création du server WebSocket qui utilise le serveur précédent
   const WebSocketServer = require("websocket").server;
   const wsServer = new WebSocketServer({
     httpServer: server,
@@ -48,14 +48,14 @@ async function main() {
   connections[0] = [];
   connections[1] = [];
 
-  // Mise en place des événements WebSockets
+  //Mise en place des événements WebSockets
   wsServer.on("request", function (request) {
     const connection = request.accept(null, request.origin);
 
     //Actions à la réception d'un message de la part du client
     connection.on("message", function (message) {
       if (JSON.parse(message.utf8Data).datatype == "conn") {
-        var valid = false; //variable servant à vérifier si les identifiants sont valides
+        var valid = false;//variable servant à vérifier si les identifiants sont valides
         var dejaCo = false;
         (async () => {
           try {
@@ -109,13 +109,13 @@ async function main() {
             );
           }
         })(); // fin async
-      } else if (JSON.parse(message.utf8Data).datatype == "queuejoin") {
+      } else if (JSON.parse(message.utf8Data).datatype == "queuejoin") {// gestion de la file d'attente
         queue[0].push(connection);
         for (i = 0; i < connections[0].length; i++) {
           if (connections[0][i] == connection) {
             queue[1].push(connections[1][i]);
           }
-        }
+        }//lorsque 2 clients sont dans la file d'attente, on les fait jouer ensemble et on vide la file
         if (queue[0].length == 2) {
           (async () => {
             try {
@@ -124,7 +124,7 @@ async function main() {
                 gameID = lastGame.gameID + 1;
               } else {
                 gameID = 0;
-              }
+              }//création de la nouvelle partie en base
               var gameAdd = new Game({ gameID: gameID, status: "live", board: [], player1Login: queue[1][0], player2Login: queue[1][1], player1color: 'w', player2color: 'b', currentPlayer: queue[1][0], start_time: Date.now(), end_time: null, playtime: 0 });
               gameAdd.save();
               queue[0][0].send(
@@ -141,17 +141,15 @@ async function main() {
             }
           })();
         }
-      } else if (JSON.parse(message.utf8Data).datatype == "gamestate") {
+      } else if (JSON.parse(message.utf8Data).datatype == "gamestate") {//lorsque l'on reçoit un état d'une partie en cours
         (async () => {
-          try {
+          try {// on trouve la partie concernée en base et on l'update
             var currentGame = await Game.findOne({ gameID: JSON.parse(message.utf8Data).gameID });
             currentGame.board = JSON.parse(message.utf8Data).plateau;
             currentGame.save();
             var player1 = currentGame.player1Login;
             var player2 = currentGame.player2Login;
-
-
-            for (i = 0; i < connections[0].length; i++) {
+            for (i = 0; i < connections[0].length; i++) {// on envoie le nouvel état de la partie aux joueurs concernés
               if (connections[1][i] == player1) {
                 connections[0][i].send(message.utf8Data);
               }
@@ -159,15 +157,12 @@ async function main() {
                 connections[0][i].send(message.utf8Data);
               }
             }
-
           } catch (err) {
             console.log(err);
           }
-
         })();
-        // TODO: gestion de gameend
       }
-      else if (JSON.parse(message.utf8Data).datatype == "leaderboard") {
+      else if (JSON.parse(message.utf8Data).datatype == "leaderboard") {//lorsque l'on reçoit une demande de leaderboard
         (async () => {
           try {
             var tableau = await User.find().sort({ nbVictoire: -1 }).limit(5);
@@ -202,7 +197,6 @@ async function main() {
               var nbV5 = user5.nbVictoire;
               var nbD5 = user5.nbDefaite;
             }
-
             connection.send(JSON.stringify({
               datatype: "leaderboard",
               user1: login1 ? login1 : "",
@@ -221,22 +215,19 @@ async function main() {
               nbV5: nbV5 ? nbV5 : "",
               nbD5: nbD5 ? nbD5 : "",
             }))
-
           } catch (err) {
             console.log(err);
           }
-
         })();
       }
-
-      else if (JSON.parse(message.utf8Data).datatype == "gameend") {
+      else if (JSON.parse(message.utf8Data).datatype == "gameend") {// lorsque l'on reçoit un message de fin de partie
         (async () => {
           try {
             var currentGame = await Game.findOne({ gameID: JSON.parse(message.utf8Data).gameID });
             currentGame.end_time = Date.now();
             currentGame.status = "finished";
             currentGame.save();
-            if (currentGame.player1Color == JSON.parse(message.utf8Data).winner) {
+            if (currentGame.player1Color == JSON.parse(message.utf8Data).winner) {//on trouve les joueurs concernés en base et on les update
               var winner = await User.findOne({ login: currentGame.player1Login });
             } else {
               var winner = await User.findOne({ login: currentGame.player2Login });
@@ -253,7 +244,7 @@ async function main() {
             loser.save();
             var player1 = currentGame.player1Login;
             var player2 = currentGame.player2Login;
-            for (i = 0; i <= connections.length; i++) {
+            for (i = 0; i <= connections.length; i++) {//on envoie le nouvel état de la partie aux joueurs concernés
               if (connections[1][i] == player1) {
                 connections[0][i].send(message.utf8Data);
               }
@@ -268,15 +259,13 @@ async function main() {
       }
     });
 
-    connection.on("close", function (reasonCode, description) {
-      // TODO: gestion de la déconnexion en virant la co dans le tableau connections
-      //var disconnectedPlayer = User
+    connection.on("close", function (reasonCode, description) {//lorsqu'un client se déconnecte
       (async () => {
         try {
           for (i = 0; i < connections[0].length; i++) {
             if (connections[0][i] == connection) {
               console.log(connections[1][i])
-              var gameToEnd = await Game.findOne({
+              var gameToEnd = await Game.findOne({//on vérifie s'il était dans une partie en cours
                 $and: [
                   { status: 'live' },
                   {
@@ -287,8 +276,7 @@ async function main() {
                   }
                 ]
               });
-              if (gameToEnd) {
-
+              if (gameToEnd) {//s'il était en partie
                 gameToEnd.status = "finished";
                 gameToEnd.end_time = Date.now();
                 gameToEnd.save();
@@ -297,26 +285,21 @@ async function main() {
                 loser.save();
                 if (gameToEnd.player1Login == loser.login) {
                   var winner = await User.findOne({ login: gameToEnd.player2Login });
-
                   winner.nbVictoire += 1;
                   winner.save();
                   var winnerColor = gameToEnd.player2color;
                 } else {
                   var winner = await User.findOne({ login: gameToEnd.player1Login });
-
                   winner.nbVictoire += 1;
                   winner.save();
                   var winnerColor = gameToEnd.player1color;
                 }
-
-
               }
-
             }
           }
           if (gameToEnd) {
             for (i = 0; i < connections[0].length; i++) {
-              if (connections[1][i] == winner.login) {
+              if (connections[1][i] == winner.login) {//on envoie à l'adversaire, donc le gagnant, le message de fin de partie
                 connections[0][i].send(JSON.stringify({ datatype: "gameend", gameID: gameToEnd.gameID, winner: winnerColor }));
               }
             }
@@ -327,8 +310,6 @@ async function main() {
               console.log("queue : " + queue);
             }
           }
-
-
           // suppression du joueur deco dans connections
           for (i = 0; i < connections[0].length; i++) {
             if (connections[0][i] == connection) {
@@ -337,14 +318,10 @@ async function main() {
               console.log("connection deco " + connections[1]);
             }
           }
-
         } catch (err) {
           console.log(err);
         }
       })();
-
-
-      // envoyer une gameend à l'adversaire en lui disant qu'il a gagné + la raison ?
       console.log("Fermeture d'une connexion avec un code : " + reasonCode + " de description : " + description);
     });
   });
