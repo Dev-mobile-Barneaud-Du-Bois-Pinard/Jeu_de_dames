@@ -29,6 +29,9 @@ function onDeviceReady() {
     var msggameover = document.getElementById('msg-gameover');
     var information = document.getElementById('information');
     var msginformation = document.getElementById('msg-information');
+    var leaderboardmenu = document.getElementById('leaderboard');
+    var retourmenufromleader = document.getElementById('retourmenufromleader');
+    retourmenufromleader.onclick = menufromleaderboard;
     var btnmenu = document.getElementById('retourmenu');
     btnmenu.onclick = displaymenu;
     var btnrejouer = document.getElementById('restart');
@@ -38,9 +41,9 @@ function onDeviceReady() {
     var menuconnection = document.getElementById('menuconnection');
     var btnstart = document.getElementById('start');
     btnstart.onclick = startfrommenu;
-    var btnstartrandom = document.getElementById('startvsrandpm');
+    var btnstartrandom = document.getElementById('startvsrandom');
     btnstartrandom.onclick = startrandom;
-    var btnleaderboard = document.getElementById('leaderboard');
+    var btnleaderboard = document.getElementById('btn-leaderboard');
     btnleaderboard.onclick = leaderboard;
     var btnrules = document.getElementById('rules');
     btnrules.onclick = rules;
@@ -659,23 +662,23 @@ function onDeviceReady() {
             msggameover.innerHTML = 'Victoire du joueur blanc';
             gameover.style.display = 'block';
             tabPionSelectable = [];
-            //TODO send message win
+            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "w"}));
         }else if(countPion('w')==0){
             msggameover.innerHTML = 'Victoire du joueur noir';
             gameover.style.display = 'block';
             tabPionSelectable = [];
-            //TODO send message win
+            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "b"}));
         }else if (tabPionSelectable.length == 0) {
             if (joueur == 'w') {
                 msggameover.innerHTML = 'Victoire du joueur noir';
                 gameover.style.display = 'block';
                 tabPionSelectable = [];
-                //TODO send message win
+                ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "b"}));
             } else {
                 msggameover.innerHTML = 'Victoire du joueur blanc';
                 gameover.style.display = 'block';
                 tabPionSelectable = [];
-                //TODO send message win
+                ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "w"}));
             }
         } 
     }
@@ -803,15 +806,27 @@ function onDeviceReady() {
     }
 
     function leaderboard(){
+        menu.style.animation = 'out 1s';
+        setTimeout(function(){menu.style.display = 'none'},1000);
         //TODO affichage classement
+        ws.send(JSON.stringify({ datatype: 'leaderboard'}));
         console.log('classement');
     }
 
+    function menufromleaderboard(){
+        leaderboardmenu.style.animation = 'out 1s';
+        setTimeout(function(){leaderboardmenu.style.display='none';},1000);
+            menu.style.animation = 'in 1s';
+            menu.style.display='block';
+    }
+
     function hidemenuconnection(){
-        menuconnection.style.animation = 'out 1s';
-        setTimeout(function(){menuconnection.style.display = 'none'},1000);
-        menu.style.animation = 'in 1s';
-        menu.style.display='block';
+        setTimeout(function(){
+            menuconnection.style.animation = 'out 1s';
+            setTimeout(function(){menuconnection.style.display = 'none'},1000);
+            menu.style.animation = 'in 1s';
+            menu.style.display='block';
+        },1000)
     }
 
     function joueurRandom() {
@@ -858,7 +873,7 @@ function onDeviceReady() {
                     w = false;
                     canplay = false;
                 }
-                displayMessage('Vous jouer contre '/*+ nom joueur*/ +'. Vous êtes le joueur ' + (w? 'blanc' : 'noir'))  //TODO ajouter le nom de l'adversaire
+                displayMessage('Vous jouez contre ' + JSON.parse(e.data).versus + '. Vous êtes le joueur ' + (w? 'blanc' : 'noir'))  //TODO ajouter le nom de l'adversaire
             },6000);
         }
         else if (JSON.parse(e.data).datatype == 'gamestate') {
@@ -882,6 +897,33 @@ function onDeviceReady() {
             lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
             tabPionSelectable = defineMeilleurCoupsPossible(JSON.parse(e.data).player);
             actualizeSelectable();
+        }
+        else if (JSON.parse(e.data).datatype == 'leaderboard') {
+            document.getElementById("user1").innerHTML = JSON.parse(e.data).user1;
+            document.getElementById("user2").innerHTML = JSON.parse(e.data).user2;
+            document.getElementById("user3").innerHTML = JSON.parse(e.data).user3;
+            document.getElementById("user4").innerHTML = JSON.parse(e.data).user4;
+            document.getElementById("user5").innerHTML = JSON.parse(e.data).user5;
+            document.getElementById("nbV1").innerHTML = JSON.parse(e.data).nbV1;
+            document.getElementById("nbV2").innerHTML = JSON.parse(e.data).nbV2;
+            document.getElementById("nbV3").innerHTML = JSON.parse(e.data).nbV3;
+            document.getElementById("nbV4").innerHTML = JSON.parse(e.data).nbV4;
+            document.getElementById("nbV5").innerHTML = JSON.parse(e.data).nbV5;
+            leaderboardmenu.style.animation = 'in 1s';
+            leaderboardmenu.style.display='block';
+        }
+        else if (JSON.parse(e.data).datatype == 'gameend') {
+            console.log(JSON.parse(e.data))
+            if (JSON.parse(e.data).winner == "w"){
+                msggameover.innerHTML = 'Victoire du joueur blanc';
+                gameover.style.display = 'block';
+                tabPionSelectable = [];
+            }
+            else{
+                msggameover.innerHTML = 'Victoire du joueur noir';
+                gameover.style.display = 'block';
+                tabPionSelectable = [];
+            }
         }
     };
 }

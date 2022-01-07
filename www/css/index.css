@@ -127,7 +127,7 @@ body {
         background-color: white;
     }
     
-    .btn-gameover:active{
+    .btn-gameover:focus{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -158,7 +158,7 @@ body {
         background-color: white;
     }
     
-    .btn-menu:active{
+    .btn-menu:focus{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -206,7 +206,7 @@ body {
         background-color: black;
     }
     
-    .btn-connection:active{
+    .btn-connection:focus{
         background-color: #FFEECF;
         color:#493D31;
     }
@@ -229,6 +229,52 @@ body {
         width:600px;
         text-align: center;
         z-index:4;
+    }
+    #leaderboard{
+        position: absolute;
+        display: none;
+        font-size: 2em;
+        font-family : Pixel4; 
+        animation : in 1s;
+        width:600px;
+        text-align: center;
+        z-index:4;
+    }
+
+    table{
+        width:500px;
+        margin-top: 160px;
+        margin-left: 50px;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+    }
+
+    tr, th, td {
+        background-color: #FFEECF;
+        color:#493D31;
+        font-family : Pixel4; 
+        border: solid 2px #493D31;
+    }
+
+    #retourmenufromleader{
+        margin-top: 20px;
+        height:80px;
+        width: 250px;
+        background-color: #FFEECF;
+        color:#493D31;
+        font-size: 1.5em;
+        font-family : Pixel4; 
+        border: solid 4px #493D31;
+    }
+    
+    #retourmenufromleader:hover{
+        background-color: white;
+    }
+    
+    #retourmenufromleader:focus{
+        background-color: #493D31;
+        color:#FFEECF;
     }
 }
 
@@ -298,7 +344,7 @@ body {
         background-color: white;
       }
     
-      .btn-gameover:active{
+      .btn-gameover:focus{
         background-color: #493D31;
         color:#FFEECF;
       }
@@ -327,7 +373,7 @@ body {
         background-color: white;
     }
     
-    .btn-menu:active{
+    .btn-menu:focus{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -375,7 +421,7 @@ body {
         background-color: black;
     }
     
-    .btn-connection:active{
+    .btn-connection:focus{
         background-color: #FFEECF;
         color:#493D31;
     }
@@ -399,6 +445,54 @@ body {
         text-align: center;
         z-index:4;
       }
+
+      
+      #leaderboard{
+        position: absolute;
+        display: none;
+        font-size: 1.5em;
+        font-family : Pixel4; 
+        animation : in 1s;
+        width:300px;
+        text-align: center;
+        z-index:4;
+    }
+
+    table{
+        width:250px;
+        margin-top: 50px;
+        margin-left: 25px;
+        background-color: #FFEECF;
+        color:#493D31;
+        border: solid 4px #493D31;
+    }
+
+    tr, th, td {
+        background-color: #FFEECF;
+        color:#493D31;
+        font-family : Pixel4; 
+        border: solid 2px #493D31;
+    }
+
+    #retourmenufromleader{
+        margin-top: 20px;
+        margin-left: 50px;
+        height:40px;
+        background-color: #FFEECF;
+        color:#493D31;
+        font-size: 1em;
+        font-family : Pixel4; 
+        border: solid 4px #493D31;
+    }
+    
+    #retourmenufromleader:hover{
+        background-color: white;
+    }
+    
+    #retourmenufromleader:focus{
+        background-color: #493D31;
+        color:#FFEECF;
+    }
 }
 
 @font-face {
