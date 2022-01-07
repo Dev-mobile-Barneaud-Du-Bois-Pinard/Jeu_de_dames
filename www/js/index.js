@@ -51,8 +51,6 @@ function onDeviceReady() {
     btnstartrandom.onclick = startrandom;
     var btnleaderboard = document.getElementById('btn-leaderboard');
     btnleaderboard.onclick = leaderboard;
-    var btnrules = document.getElementById('rules');
-    btnrules.onclick = rules;
 
     var smartphone = false; 
     if(window.screen.width<600) smartphone = true;
@@ -778,10 +776,7 @@ function onDeviceReady() {
         menu.style.display='block';
     }
 
-    function rules(){
-        //TODO affichage règles
-        console.log('règles');
-    }
+    
 
     function leaderboard(){
         menu.style.animation = 'out 1s';

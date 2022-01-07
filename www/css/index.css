@@ -127,7 +127,7 @@ body {
         background-color: white;
     }
     
-    .btn-gameover:focus{
+    .btn-gameover:active{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -154,11 +154,12 @@ body {
         border: solid 4px #493D31;
     }
     
+    
     .btn-menu:hover{
         background-color: white;
     }
     
-    .btn-menu:focus{
+    .btn-menu:active{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -206,7 +207,7 @@ body {
         background-color: black;
     }
     
-    .btn-connection:focus{
+    .btn-connection:active{
         background-color: #FFEECF;
         color:#493D31;
     }
@@ -272,7 +273,7 @@ body {
         background-color: white;
     }
     
-    #retourmenufromleader:focus{
+    #retourmenufromleader:active{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -302,7 +303,7 @@ body {
         background-color: white;
     }
     
-    #btn-abandon:focus{
+    #btn-abandon:active{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -332,7 +333,7 @@ body {
         background-color: white;
     }
     
-    #btn-abandonIA:focus{
+    #btn-abandonIA:active{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -404,7 +405,7 @@ body {
         background-color: white;
       }
     
-      .btn-gameover:focus{
+      .btn-gameover:active{
         background-color: #493D31;
         color:#FFEECF;
       }
@@ -433,7 +434,7 @@ body {
         background-color: white;
     }
     
-    .btn-menu:focus{
+    .btn-menu:active{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -481,7 +482,7 @@ body {
         background-color: black;
     }
     
-    .btn-connection:focus{
+    .btn-connection:active{
         background-color: #FFEECF;
         color:#493D31;
     }
@@ -549,7 +550,7 @@ body {
         background-color: white;
     }
     
-    #retourmenufromleader:focus{
+    #retourmenufromleader:active{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -579,7 +580,7 @@ body {
         background-color: white;
     }
     
-    #btn-abandon:focus{
+    #btn-abandon:active{
         background-color: #493D31;
         color:#FFEECF;
     }
@@ -609,7 +610,7 @@ body {
         background-color: white;
     }
     
-    #btn-abandonIA:focus{
+    #btn-abandonIA:active{
         background-color: #493D31;
         color:#FFEECF;
     }
