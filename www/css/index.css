@@ -230,6 +230,28 @@ body {
         text-align: center;
         z-index:4;
     }
+    #leaderboard{
+        position: absolute;
+        font-size: 1.5em;
+        margin-top: 200px;
+        margin-left: 50px;
+        font-family : Pixel4; 
+        animation : in 1s;
+        width:500px;
+        text-align: center;
+        z-index:4;
+        background-color: #FFEECF;
+        color:#493D31;
+        font-family : Pixel4; 
+        border: solid 4px #493D31;
+    }
+
+    tr, th, td {
+        background-color: #FFEECF;
+        color:#493D31;
+        font-family : Pixel4; 
+        border: solid 2px #493D31;
+    }
 }
 
 @media screen and (max-width:600px) {
