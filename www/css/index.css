@@ -64,6 +64,7 @@ body {
 @media screen and (min-width:600px) {
     h1 {
         font-size:24px;
+        font-family : Pixel4; 
         font-weight:normal;
         margin:0px;
         overflow:visible;
@@ -341,7 +342,8 @@ body {
 
 @media screen and (max-width:600px) {
     h1 {
-        font-size:12px;
+        font-size:18px;
+        font-family : Pixel4; 
         font-weight:normal;
         margin:0px;
         overflow:visible;
