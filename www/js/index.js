@@ -805,6 +805,7 @@ function onDeviceReady() {
     function leaderboard(){
         //TODO affichage classement
         console.log('classement');
+        ws.send(JSON.stringify({ datatype: 'leaderboard'}));
     }
 
     function hidemenuconnection(){
@@ -895,6 +896,9 @@ function onDeviceReady() {
                 gameover.style.display = 'block';
                 tabPionSelectable = [];
             }
+        }
+        else if (JSON.parse(e.data).datatype == 'gameend') {
+            
         }
     };
 }
