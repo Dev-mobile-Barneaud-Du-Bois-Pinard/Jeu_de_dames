@@ -10,13 +10,13 @@ async function main() {
 
   const User = mongoose.model('User', userSchema);
 
-  var userAdd = new User({login: 'coco58', mdp: 'coco58pwd', nbVictoire: 0, nbDefaite :0});
+  var userAdd = new User({login: 'coco58', mdp: 'coco58pwd', nbVictoire: 10, nbDefaite :0});
   await userAdd.save();
 
-  userAdd = new User({login: 'superman78', mdp: 'superman78pwd', nbVictoire: 0, nbDefaite :0});
+  userAdd = new User({login: 'superman78', mdp: 'superman78pwd', nbVictoire: 5, nbDefaite :5});
   await userAdd.save();
 
-  userAdd = new User({login: 'toto', mdp: 'totopwd', nbVictoire: 0, nbDefaite :0});
+  userAdd = new User({login: 'toto', mdp: 'totopwd', nbVictoire: 2, nbDefaite :3});
   await userAdd.save();
 
   userAdd = new User({login: 'tata', mdp: 'tatapwd', nbVictoire: 0, nbDefaite :0});
