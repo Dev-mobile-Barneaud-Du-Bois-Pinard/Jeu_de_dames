@@ -32,8 +32,14 @@ function onDeviceReady() {
     var leaderboardmenu = document.getElementById('leaderboard');
     var retourmenufromleader = document.getElementById('retourmenufromleader');
     retourmenufromleader.onclick = menufromleaderboard;
-    var btnmenu = document.getElementById('retourmenu');
-    btnmenu.onclick = displaymenu;
+    var abandon = document.getElementById('abandon');
+    var btnabandon = document.getElementById('btn-abandon');
+    btnabandon.onclick = abandonner;
+    var abandonIA = document.getElementById('abandonIA');
+    var btnabandonIA = document.getElementById('btn-abandonIA');
+    btnabandonIA.onclick = abandonnerIA;
+    var retourmenu = document.getElementById('retourmenu');
+    retourmenu.onclick = displaymenu;
     var btnrejouer = document.getElementById('restart');
     btnrejouer.onclick = restart;
 
@@ -658,57 +664,27 @@ function onDeviceReady() {
             ws.send(JSON.stringify({ datatype: 'gamestate', gameID: gameID, player: joueur, lastplayer: lastjoueur, plateau: tabCase }));
         }
 
-        if(countPion('b')==0){
-            msggameover.innerHTML = 'Victoire du joueur blanc';
-            gameover.style.display = 'block';
-            tabPionSelectable = [];
-            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "w"}));
-        }else if(countPion('w')==0){
-            msggameover.innerHTML = 'Victoire du joueur noir';
-            gameover.style.display = 'block';
-            tabPionSelectable = [];
-            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "b"}));
-        }else if (tabPionSelectable.length == 0) {
-            if (joueur == 'w') {
-                msggameover.innerHTML = 'Victoire du joueur noir';
-                gameover.style.display = 'block';
-                tabPionSelectable = [];
-                ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "b"}));
-            } else {
-                msggameover.innerHTML = 'Victoire du joueur blanc';
-                gameover.style.display = 'block';
-                tabPionSelectable = [];
-                ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "w"}));
-            }
+        if(countPion('b')==0) end('w');
+        else if(countPion('w')==0) end('b');
+        else if (tabPionSelectable.length == 0) {
+            if (joueur == 'w') end('b');
+            else end('w');
         } 
     }
 
     function tourIA(){
         lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
-        if (countPion('b') == 0) {
-            msggameover.innerHTML = 'Victoire du joueur blanc';
-            gameover.style.display = 'block';
-            tabPionSelectable = [];
-        } else if (countPion('w') == 0) {
-            msggameover.innerHTML = 'Victoire du joueur noir';
-            gameover.style.display = 'block';
-            tabPionSelectable = [];
-        } else {
+        if (countPion('b') == 0) endIA('w');
+        else if (countPion('w') == 0) endIA('b');
+        else {
             if (!rafle) {
                 joueur = (joueur == 'w' ? 'b' : 'w');
                 tabPionSelectable = defineMeilleurCoupsPossible(joueur);
             }
             actualizeSelectable();
             if (tabPionSelectable.length == 0) {
-                if (joueur == 'w') {
-                    msggameover.innerHTML = 'Victoire du joueur noir';
-                    gameover.style.display = 'block';
-                    tabPionSelectable = [];
-                } else {
-                    msggameover.innerHTML = 'Victoire du joueur blanc';
-                    gameover.style.display = 'block';
-                    tabPionSelectable = [];
-                }
+                if (joueur == 'w') endIA('w');
+                else endIA('b');
             } else if (joueur == 'b' && ia) setTimeout(joueurRandom, 500);
         }
     }
@@ -739,8 +715,10 @@ function onDeviceReady() {
     function start(random = false) {
         ia = random;
         joueur = 'w';
-        //TODO enregistrement dans la queue
-        if(ia==false){
+        if(ia){
+            abandonIA.style.animation="in 1s";
+            abandonIA.style.display="block";
+        }else{
             setTimeout(function(){
                 displayMessage('Partie d\'attente vs joueur random');
             },500);
@@ -775,26 +753,26 @@ function onDeviceReady() {
     
     function restart() {
         gameover.style.animation = 'out 1s';
-        setTimeout(function(){gameover.style.display = 'none'},1000);
+        setTimeout(function(){gameover.style.display = 'none'},900);
         clear();
         start(ia);
     }
 
     function startrandom(){
         menu.style.animation = 'out 1s';
-        setTimeout(function(){menu.style.display = 'none'},1000);
+        setTimeout(function(){menu.style.display = 'none'},900);
         start(true);
     }
 
     function startfrommenu(){
         menu.style.animation = 'out 1s';
-        setTimeout(function(){menu.style.display = 'none'},1000);
+        setTimeout(function(){menu.style.display = 'none'},900);
         start(false);
     }
 
     function displaymenu(){
         gameover.style.animation = 'out 1s';
-        setTimeout(function(){gameover.style.display = 'none'},1000);
+        setTimeout(function(){gameover.style.display = 'none'},900);
         clear();
         menu.style.animation = 'in 1s';
         menu.style.display='block';
@@ -807,7 +785,7 @@ function onDeviceReady() {
 
     function leaderboard(){
         menu.style.animation = 'out 1s';
-        setTimeout(function(){menu.style.display = 'none'},1000);
+        setTimeout(function(){menu.style.display = 'none'},900);
         //TODO affichage classement
         ws.send(JSON.stringify({ datatype: 'leaderboard'}));
         console.log('classement');
@@ -815,7 +793,7 @@ function onDeviceReady() {
 
     function menufromleaderboard(){
         leaderboardmenu.style.animation = 'out 1s';
-        setTimeout(function(){leaderboardmenu.style.display='none';},1000);
+        setTimeout(function(){leaderboardmenu.style.display='none';},900);
             menu.style.animation = 'in 1s';
             menu.style.display='block';
     }
@@ -823,10 +801,51 @@ function onDeviceReady() {
     function hidemenuconnection(){
         setTimeout(function(){
             menuconnection.style.animation = 'out 1s';
-            setTimeout(function(){menuconnection.style.display = 'none'},1000);
+            setTimeout(function(){menuconnection.style.display = 'none'},900);
             menu.style.animation = 'in 1s';
             menu.style.display='block';
         },1000)
+    }
+
+    function abandonner(){
+        if(w) end('b');
+        else end('w');
+    }
+
+    function abandonnerIA(){
+        endIA('b');
+    }
+
+    function endIA(j){
+        if(j=='w'){
+            msggameover.innerHTML = 'Victoire du joueur blanc';
+            gameover.style.animation = "in 1s";
+            gameover.style.display = 'block';
+        }else{
+            msggameover.innerHTML = 'Victoire du joueur noir';
+            gameover.style.animation = "in 1s";
+            gameover.style.display = 'block';
+        }
+        abandonIA.style.animation = "out 1s";
+        setTimeout(function(){
+            abandonIA.style.display = "none";
+        },900)
+        tabPionSelectable = [];
+    }
+
+    function end(j){
+        if(j=='w'){
+            msggameover.innerHTML = 'Victoire du joueur blanc';
+            gameover.style.animation = "in 1s";
+            gameover.style.display = 'block';
+            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "w"}));
+        }else{
+            msggameover.innerHTML = 'Victoire du joueur noir';
+            gameover.style.animation = "in 1s";
+            gameover.style.display = 'block';
+            ws.send(JSON.stringify({ datatype: 'gameend', gameID: gameID, winner: "b"}));
+        }
+        tabPionSelectable = [];
     }
 
     function joueurRandom() {
@@ -850,7 +869,7 @@ function onDeviceReady() {
         else if (JSON.parse(e.data).datatype == 'gamestart') {
             setTimeout(function(){
                 displayMessage('Un adversaire a été trouvé, la partie commence dans 5 secondes.');
-            },1000);
+            },900);
             setTimeout(function(){
                 ia=false;
                 gameID = JSON.parse(e.data).gameID;
@@ -873,7 +892,9 @@ function onDeviceReady() {
                     w = false;
                     canplay = false;
                 }
-                displayMessage('Vous jouez contre ' + JSON.parse(e.data).versus + '. Vous êtes le joueur ' + (w? 'blanc' : 'noir'))  //TODO ajouter le nom de l'adversaire
+                displayMessage('Vous jouez contre ' + JSON.parse(e.data).versus + '. Vous êtes le joueur ' + (w? 'blanc' : 'noir'));
+                abandon.style.animation = "in 1s";
+                abandon.style.display = 'block';
             },6000);
         }
         else if (JSON.parse(e.data).datatype == 'gamestate') {
@@ -916,14 +937,20 @@ function onDeviceReady() {
             console.log(JSON.parse(e.data))
             if (JSON.parse(e.data).winner == "w"){
                 msggameover.innerHTML = 'Victoire du joueur blanc';
+                gameover.style.animation = "in 1s";
                 gameover.style.display = 'block';
                 tabPionSelectable = [];
             }
             else{
                 msggameover.innerHTML = 'Victoire du joueur noir';
+                gameover.style.animation = "in 1s";
                 gameover.style.display = 'block';
                 tabPionSelectable = [];
             }
+            abandon.style.animation = "out 1s";
+            setTimeout(function(){
+                abandon.style.display = 'none';
+            },900);
         }
     };
 }
