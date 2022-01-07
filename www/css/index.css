@@ -521,7 +521,7 @@ body {
     table{
         width:250px;
         margin-top: 50px;
-        margin-left: 25px;
+        margin-left: 45px;
         background-color: #FFEECF;
         color:#493D31;
         border: solid 4px #493D31;
@@ -550,6 +550,66 @@ body {
     }
     
     #retourmenufromleader:focus{
+        background-color: #493D31;
+        color:#FFEECF;
+    }
+
+    #abandon{
+        position: absolute;
+        display: none;
+        font-size: 1.5em;
+        margin-top: 330px;
+        font-family : Pixel4; 
+        animation : in 1s;
+        width:300px;
+        text-align: center;
+        z-index:4;
+    }
+    #btn-abandon{
+        margin-top: 25px;
+        height:50px;
+        margin-left: 35px;
+        background-color: #FFEECF;
+        color:#493D31;
+        font-size: 1.5em;
+        font-family : Pixel4; 
+        border: solid 4px #493D31;
+    }
+    #btn-abandon:hover{
+        background-color: white;
+    }
+    
+    #btn-abandon:focus{
+        background-color: #493D31;
+        color:#FFEECF;
+    }
+
+    #abandonIA{
+        position: absolute;
+        display: none;
+        font-size: 1.5em;
+        margin-top: 330px;
+        font-family : Pixel4; 
+        animation : in 1s;
+        width:300px;
+        text-align: center;
+        z-index:4;
+    }
+    #btn-abandonIA{
+        margin-top: 25px;
+        height:50px;
+        margin-left: 35px;
+        background-color: #FFEECF;
+        color:#493D31;
+        font-size: 1.5em;
+        font-family : Pixel4; 
+        border: solid 4px #493D31;
+    }
+    #btn-abandonIA:hover{
+        background-color: white;
+    }
+    
+    #btn-abandonIA:focus{
         background-color: #493D31;
         color:#FFEECF;
     }
