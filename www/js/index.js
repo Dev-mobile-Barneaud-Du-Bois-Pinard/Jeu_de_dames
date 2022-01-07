@@ -806,6 +806,7 @@ function onDeviceReady() {
 
     function leaderboard(){
         //TODO affichage classement
+        ws.send(JSON.stringify({ datatype: 'leaderboard'}));
         console.log('classement');
     }
 
@@ -884,6 +885,14 @@ function onDeviceReady() {
             lastTabPionSelectable = JSON.parse(JSON.stringify(tabPionSelectable));
             tabPionSelectable = defineMeilleurCoupsPossible(JSON.parse(e.data).player);
             actualizeSelectable();
+        }
+        else if (JSON.parse(e.data).datatype == 'leaderboard') {
+            msggameover.innerHTML = 'N°1 : '+JSON.parse(e.data).user1;
+            msggameover.innerHTML += 'N°2 : '+JSON.parse(e.data).user2;
+            msggameover.innerHTML += 'N°3 : '+JSON.parse(e.data).user3;
+            msggameover.innerHTML += 'N°4 : '+JSON.parse(e.data).user4;
+            msggameover.innerHTML += 'N°5 : '+JSON.parse(e.data).user5;
+            gameover.style.display = 'block';
         }
         else if (JSON.parse(e.data).datatype == 'gameend') {
             console.log(JSON.parse(e.data))
