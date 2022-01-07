@@ -173,6 +173,7 @@ async function main() {
         (async () => {
           try {
             var currentGame = await Game.findOne({gameID : JSON.parse(message.utf8Data).gameID});
+            console.log("partie en cours "+ currentGame);
             currentGame.board = JSON.parse(message.utf8Data).plateau;
             currentGame.save();
             var player1 = currentGame.player1Login;
@@ -296,6 +297,79 @@ async function main() {
     
     connection.on("close", function (reasonCode, description) {
       // TODO: gestion de la déconnexion en virant la co dans le tableau connections
+      //var disconnectedPlayer = User
+      (async () => {
+        try {
+              for (i = 0; i < connections[0].length; i++){
+                if(connections[0][i] == connection){
+                  console.log(connections[1][i])
+                  var gameToEnd = await Game.findOne({
+                    $and: [
+                      { status : 'live' }, 
+                      {$or: [
+                        { player1Login : connections[1][i] },
+                        { player2Login : connections[1][i] }
+                      ] 
+                     }
+                    ]
+                  });
+                  if (gameToEnd) {
+
+                    gameToEnd.status = "finished";
+                    gameToEnd.end_time = Date.now();
+                    gameToEnd.save();
+                    var loser = await User.findOne({ login : connections[1][i] });
+                    loser.nbDefaite += 1;
+                    loser.save();
+                    if (gameToEnd.player1Login == loser.login) {
+                      var winner = await User.findOne({login : gameToEnd.player2Login});
+  
+                      winner.nbVictoire += 1;
+                      winner.save();
+                      var winnerColor = gameToEnd.player2color;
+                    } else {
+                      var winner = await User.findOne({login : gameToEnd.player1Login});
+  
+                      winner.nbVictoire += 1;
+                      winner.save();
+                      var winnerColor = gameToEnd.player1color;
+                    }
+
+
+                  }
+
+                }
+              }
+              if (gameToEnd) {
+                for (i = 0; i< connections[0].length; i++) {
+                  if (connections[1][i] == winner.login) {
+                    connections[0][i].send(JSON.stringify({ datatype: "gameend", gameID: gameToEnd.gameID, winner : winnerColor}));
+                  }
+                }
+              } else {
+                  if(queue[0][0] == connection) {
+                    queue[0] = [];
+                    queue[1] = []; 
+                    console.log("queue : " +queue);                 
+                }
+              }
+              
+
+                   // suppression du joueur deco dans connections
+              for (i = 0; i< connections[0].length; i++) {
+                if (connections[0][i] == connection) {
+                  connections[0].splice(i, 1);
+                  connections[1].splice(i, 1);
+                  console.log("connection deco " +connections[1]);
+                }
+              }
+
+            } catch (err) {
+              console.log(err);
+            }
+      })();
+
+
       // envoyer une gameend à l'adversaire en lui disant qu'il a gagné + la raison ?
       console.log(
         "Fermeture d'une connexion avec un code : " +
