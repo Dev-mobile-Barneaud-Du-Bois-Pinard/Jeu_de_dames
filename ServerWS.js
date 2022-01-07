@@ -173,6 +173,68 @@ async function main() {
       })();
           // TODO: gestion de gameend
       }
+      else if (JSON.parse(message.utf8Data).datatype == "leaderboard") {
+        (async () => {
+          try {
+            var tableau = await User.find().sort({nbVictoire : -1}).limit(5);
+            var user1 = tableau[0];
+            var user2 = tableau[1];
+            var user3 = tableau[2];
+            var user4 = tableau[3];
+            var user5 = tableau[4];
+
+            if (user1) {
+              var login1 = user1.login;
+              var nbV1 = user1.nbVictoire;
+              var nbD1 = user1.nbDefaite;
+            }
+            if (user2) {
+              var login2 = user2.login;
+              var nbV2 = user2.nbVictoire;
+              var nbD2 = user2.nbDefaite;
+            }
+            if (user3) {
+              var login3 = user3.login;
+              var nbV3 = user3.nbVictoire;
+              var nbD3 = user3.nbDefaite;
+            }
+            if (user4) {
+              var login4 = user4.login;
+              var nbV4 = user4.nbVictoire;
+              var nbD4 = user4.nbDefaite;
+            }
+            if (user5) {
+              var login5 = user5.login;
+              var nbV5 = user5.nbVictoire;
+              var nbD5 = user5.nbDefaite;
+            }
+            
+            connection.send(JSON.stringify({
+              datatype: "leaderboard",
+              user1: login1? login1 : "",
+              nbV1: nbV1? nbV1 : "",
+              nbD1: nbD1? nbD1 : "",
+              user2: login2? login2 : "",
+              nbV2: nbV2? nbV2 : "",
+              nbD2: nbD2? nbD2 : "",
+              user3: login3? login3 : "",
+              nbV3: nbV3? nbV3 : "",
+              nbD3: nbD3? nbD3 : "",
+              user4: login4? login4 : "",
+              nbV4: nbV4? nbV4 : "",
+              nbD4: nbD4? nbD4 : "",
+              user5: login5? login5 : "",
+              nbV5: nbV5? nbV5 : "",
+              nbD5: nbD5? nbD5 : "",
+            }))
+    
+          } catch (err) {
+            console.log(err);
+          }
+
+        })();
+      }
+
       else if (JSON.parse(message.utf8Data).datatype == "gameend") {
         (async () => {
           try {
